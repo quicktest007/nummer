@@ -572,6 +572,236 @@ function pct(c, p) {
   return ((c - p) / Math.abs(p) * 100).toFixed(1);
 }
 
+function findRow(stmt, name) {
+  const d = typeof stmt === 'string' ? DATA[stmt] : stmt;
+  for (const sec of d.sections) {
+    const row = sec.rows.find(r => r.n === name);
+    if (row) return row;
+  }
+  return null;
+}
+
+function sumItemsInRange(rows, start, end, field = 'c') {
+  return rows.slice(start, end).filter(r => r.i).reduce((s, r) => s + r[field], 0);
+}
+
+function sumSinceBoundary(rows, endIdx, field = 'c') {
+  let start = 0;
+  for (let i = 0; i < endIdx; i++) {
+    if (rows[i].sub || rows[i].tot) start = i + 1;
+  }
+  return sumItemsInRange(rows, start, endIdx, field);
+}
+
+function setCalc(row, c, p) {
+  row.c = Math.round(c);
+  row.p = Math.round(p);
+}
+
+function fmtK(n) {
+  return fmt(n) + 'K';
+}
+
+function yoyLine(c, p, lowerIsBetter = false) {
+  const ch = pct(c, p);
+  if (ch === null) return { s: '—', c: 'var(--txt3)' };
+  const n = parseFloat(ch);
+  const good = lowerIsBetter ? n <= 0 : n >= 0;
+  return {
+    s: `${n >= 0 ? '↑' : '↓'} ${n >= 0 ? '+' : ''}${ch}% YoY`,
+    c: good ? 'var(--green)' : 'var(--red)',
+  };
+}
+
+function marginSub(numerator, denominator, label) {
+  if (!denominator) return { s: '—', c: 'var(--txt3)' };
+  return { s: `${(numerator / denominator * 100).toFixed(1)}% ${label}`, c: 'var(--green)' };
+}
+
+function recalcBalance(d) {
+  const assets = d.sections.find(s => s.h === 'ASSETS');
+  const liab = d.sections.find(s => s.h === 'LIABILITIES & EQUITY');
+
+  assets.rows.forEach((row, idx) => {
+    if (row.sub) setCalc(row, sumSinceBoundary(assets.rows, idx, 'c'), sumSinceBoundary(assets.rows, idx, 'p'));
+  });
+
+  const tcaIdx = assets.rows.findIndex(r => r.n === 'Total Current Assets');
+  const totalAssets = assets.rows.find(r => r.n === 'TOTAL ASSETS');
+  const taIdx = assets.rows.indexOf(totalAssets);
+  if (tcaIdx >= 0 && taIdx > tcaIdx) {
+    const tca = assets.rows[tcaIdx];
+    setCalc(totalAssets,
+      tca.c + sumItemsInRange(assets.rows, tcaIdx + 1, taIdx, 'c'),
+      tca.p + sumItemsInRange(assets.rows, tcaIdx + 1, taIdx, 'p'));
+  }
+
+  const tclIdx = liab.rows.findIndex(r => r.n === 'Total Current Liabilities');
+  if (tclIdx >= 0) {
+    setCalc(liab.rows[tclIdx], sumSinceBoundary(liab.rows, tclIdx, 'c'), sumSinceBoundary(liab.rows, tclIdx, 'p'));
+  }
+
+  const totalLiab = liab.rows.find(r => r.n === 'Total Liabilities');
+  const tlIdx = liab.rows.indexOf(totalLiab);
+  if (tlIdx >= 0) {
+    setCalc(totalLiab, sumItemsInRange(liab.rows, 0, tlIdx, 'c'), sumItemsInRange(liab.rows, 0, tlIdx, 'p'));
+  }
+
+  const tse = liab.rows.find(r => r.n === 'Total Shareholders Equity');
+  const tseIdx = liab.rows.indexOf(tse);
+  if (tseIdx >= 0) {
+    setCalc(tse, sumSinceBoundary(liab.rows, tseIdx, 'c'), sumSinceBoundary(liab.rows, tseIdx, 'p'));
+  }
+
+  const totalLE = liab.rows.find(r => r.n === 'TOTAL LIAB. & EQUITY');
+  if (totalLiab && tse && totalLE) {
+    setCalc(totalLE, totalLiab.c + tse.c, totalLiab.p + tse.p);
+  }
+}
+
+function recalcIncome(d) {
+  d.sections.forEach(sec => {
+    if (sec.h === 'BELOW THE LINE') return;
+    sec.rows.forEach((row, idx) => {
+      if (row.sub) setCalc(row, sumSinceBoundary(sec.rows, idx, 'c'), sumSinceBoundary(sec.rows, idx, 'p'));
+    });
+  });
+
+  const totalRev = findRow(d, 'Total Revenue');
+  const totalCost = findRow(d, 'Total Cost of Revenue');
+  const grossProfit = findRow(d, 'GROSS PROFIT');
+  if (totalRev && totalCost && grossProfit) {
+    setCalc(grossProfit, totalRev.c - totalCost.c, totalRev.p - totalCost.p);
+  }
+
+  const totalOpEx = findRow(d, 'Total Operating Expenses');
+  const operatingIncome = findRow(d, 'OPERATING INCOME (EBIT)');
+  if (grossProfit && totalOpEx && operatingIncome) {
+    setCalc(operatingIncome, grossProfit.c - totalOpEx.c, grossProfit.p - totalOpEx.p);
+  }
+
+  const below = d.sections.find(s => s.h === 'BELOW THE LINE');
+  if (!below) return;
+
+  const ibt = below.rows.find(r => r.n === 'Income Before Tax');
+  const ibtIdx = below.rows.indexOf(ibt);
+  if (ibt && operatingIncome && ibtIdx >= 0) {
+    setCalc(ibt,
+      operatingIncome.c + sumItemsInRange(below.rows, 0, ibtIdx, 'c'),
+      operatingIncome.p + sumItemsInRange(below.rows, 0, ibtIdx, 'p'));
+  }
+
+  const netIncome = below.rows.find(r => r.n === 'NET INCOME');
+  const niIdx = below.rows.indexOf(netIncome);
+  if (netIncome && ibt && niIdx > ibtIdx) {
+    setCalc(netIncome,
+      ibt.c + sumItemsInRange(below.rows, ibtIdx + 1, niIdx, 'c'),
+      ibt.p + sumItemsInRange(below.rows, ibtIdx + 1, niIdx, 'p'));
+  }
+}
+
+function recalcCashflow(d) {
+  d.sections.forEach(sec => {
+    if (sec.h === 'CASH SUMMARY') return;
+    const tot = sec.rows.find(r => r.tot);
+    if (!tot) return;
+    const totIdx = sec.rows.indexOf(tot);
+    setCalc(tot, sumItemsInRange(sec.rows, 0, totIdx, 'c'), sumItemsInRange(sec.rows, 0, totIdx, 'p'));
+  });
+
+  const op = findRow(d, 'Net Cash from Operations');
+  const inv = findRow(d, 'Net Cash from Investing');
+  const fin = findRow(d, 'Net Cash from Financing');
+  const netChange = findRow(d, 'Net Change in Cash');
+  if (op && inv && fin && netChange) {
+    setCalc(netChange, op.c + inv.c + fin.c, op.p + inv.p + fin.p);
+  }
+
+  const beginning = findRow(d, 'Beginning Cash Balance');
+  const ending = findRow(d, 'ENDING CASH BALANCE');
+  if (beginning && netChange && ending) {
+    setCalc(ending, beginning.c + netChange.c, beginning.p + netChange.p);
+  }
+}
+
+function syncNetIncomeToCashflow() {
+  const ni = findRow(DATA.income, 'NET INCOME');
+  const cfNi = findRow(DATA.cashflow, 'Net Income');
+  if (ni && cfNi) {
+    cfNi.c = ni.c;
+    cfNi.p = ni.p;
+  }
+}
+
+function updateKPIs(stmtKey) {
+  const d = DATA[stmtKey];
+
+  if (stmtKey === 'balance') {
+    const assets = findRow(d, 'TOTAL ASSETS');
+    const liab = findRow(d, 'Total Liabilities');
+    const equity = findRow(d, 'Total Shareholders Equity');
+    const ca = findRow(d, 'Total Current Assets');
+    const cl = findRow(d, 'Total Current Liabilities');
+    const wc = ca.c - cl.c;
+    const wcP = ca.p - cl.p;
+    d.kpis = [
+      { l: 'Total Assets', v: fmtK(assets.c), ...yoyLine(assets.c, assets.p) },
+      { l: 'Total Liabilities', v: fmtK(liab.c), ...yoyLine(liab.c, liab.p, true) },
+      { l: 'Shareholders Equity', v: fmtK(equity.c), ...yoyLine(equity.c, equity.p) },
+      { l: 'Working Capital', v: fmtK(wc), ...yoyLine(wc, wcP) },
+    ];
+  } else if (stmtKey === 'income') {
+    const rev = findRow(d, 'Total Revenue');
+    const gp = findRow(d, 'GROSS PROFIT');
+    const ebit = findRow(d, 'OPERATING INCOME (EBIT)');
+    const ni = findRow(d, 'NET INCOME');
+    const da = findRow(DATA.cashflow, 'Depreciation & Amortization');
+    const ebitdaC = ebit.c + (da ? da.c : 0);
+    const ebitdaP = ebit.p + (da ? da.p : 0);
+    d.kpis = [
+      { l: 'Revenue', v: fmtK(rev.c), ...yoyLine(rev.c, rev.p) },
+      { l: 'Gross Profit', v: fmtK(gp.c), ...marginSub(gp.c, rev.c, 'margin') },
+      { l: 'EBITDA', v: fmtK(ebitdaC), ...marginSub(ebitdaC, rev.c, 'margin') },
+      { l: 'Net Income', v: fmtK(ni.c), ...marginSub(ni.c, rev.c, 'margin') },
+    ];
+  } else if (stmtKey === 'cashflow') {
+    const op = findRow(d, 'Net Cash from Operations');
+    const inv = findRow(d, 'Net Cash from Investing');
+    const fin = findRow(d, 'Net Cash from Financing');
+    const chg = findRow(d, 'Net Change in Cash');
+    const end = findRow(d, 'ENDING CASH BALANCE');
+    const signed = v => (v >= 0 ? '+' : '') + fmt(v) + 'K';
+    d.kpis = [
+      { l: 'Operating CF', v: signed(op.c), s: op.c >= 0 ? '↑ Strong positive' : '↓ Negative', c: op.c >= 0 ? 'var(--green)' : 'var(--red)' },
+      { l: 'Investing CF', v: signed(inv.c), s: inv.c < 0 ? 'Growth investment' : 'Asset sales', c: 'var(--txt3)' },
+      { l: 'Financing CF', v: signed(fin.c), ...yoyLine(fin.c, fin.p) },
+      { l: 'Net Cash Change', v: signed(chg.c), s: `Ending: ${fmt(end.c)}`, c: chg.c >= 0 ? 'var(--green)' : 'var(--red)' },
+    ];
+  }
+}
+
+function recalculateStatement(stmtKey) {
+  if (stmtKey === 'balance') {
+    recalcBalance(DATA.balance);
+    updateKPIs('balance');
+  } else if (stmtKey === 'income') {
+    recalcIncome(DATA.income);
+    syncNetIncomeToCashflow();
+    recalcCashflow(DATA.cashflow);
+    updateKPIs('income');
+    updateKPIs('cashflow');
+  } else if (stmtKey === 'cashflow') {
+    recalcCashflow(DATA.cashflow);
+    updateKPIs('cashflow');
+  }
+}
+
+function refreshEditor() {
+  const d = DATA[state.curStmt];
+  renderKPIs(d.kpis);
+  renderStmtTable(d);
+}
+
 function markSaved() {
   state.saveSeconds = 0;
   $('#saveLabel').textContent = 'Saved just now';
@@ -666,8 +896,8 @@ function loadStmt(key) {
   const d = DATA[key];
   $('#stmt-title').textContent = d.title;
   $('#stmt-meta').textContent = d.meta;
-  renderKPIs(d.kpis);
-  renderStmtTable(d);
+  recalculateStatement(key);
+  refreshEditor();
   switchView('editor');
   closeSidebar();
 }
@@ -717,11 +947,12 @@ function startEdit(btn) {
         const { stmt, sec, ri, f } = btn.dataset;
         const section = DATA[stmt].sections.find(s => s.h === sec);
         if (section) section.rows[parseInt(ri, 10)][f] = v;
+        recalculateStatement(stmt);
         markSaved();
         toast('Value updated — totals recalculated');
       }
     }
-    renderStmtTable(DATA[state.curStmt]);
+    refreshEditor();
     editOriginal = null;
   };
 
@@ -737,7 +968,7 @@ function startEdit(btn) {
       }
       btn.classList.remove('editing');
       editOriginal = null;
-      renderStmtTable(DATA[state.curStmt]);
+      refreshEditor();
     }
   });
 }
@@ -752,7 +983,7 @@ function setAccent(c1, c2) {
     pill.classList.toggle('sel', on);
     pill.setAttribute('aria-pressed', on);
   });
-  renderStmtTable(DATA[state.curStmt]);
+  refreshEditor();
 }
 
 function updateCompanyMeta() {
@@ -929,7 +1160,7 @@ $('#rpClose').addEventListener('click', () => toggleSettings(false));
 
 $('#lineSearch').addEventListener('input', e => {
   state.filter = e.target.value;
-  renderStmtTable(DATA[state.curStmt]);
+  refreshEditor();
 });
 
 $('#periodSelect').addEventListener('change', e => {
@@ -957,6 +1188,9 @@ document.addEventListener('keydown', e => {
 });
 
 setInterval(tickSaveStatus, 1000);
+recalculateStatement('balance');
+recalculateStatement('income');
+recalculateStatement('cashflow');
 loadStmt('balance');
 })();
 </script>
