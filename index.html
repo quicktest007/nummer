@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0D0520;--bg2:#130830;--bg3:#1A0B3B;--bg4:#220D4A;
   --surface:rgba(255,255,255,0.04);--surface2:rgba(255,255,255,0.07);
@@ -17,72 +17,86 @@
   --blue:#3B82F6;--green:#34D399;--red:#F87171;
   --txt:#F8F6FF;--txt2:rgba(248,246,255,0.6);--txt3:rgba(248,246,255,0.35);
   --ff-d:'Syne',sans-serif;--ff-b:'DM Sans',sans-serif;--ff-m:'JetBrains Mono',monospace;
+  --radius:10px;--shadow:0 8px 32px rgba(0,0,0,0.35);
 }
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--txt);font-family:var(--ff-b)}
+html,body{height:100%}
+body{background:var(--bg);color:var(--txt);font-family:var(--ff-b);line-height:1.5}
+:focus-visible{outline:2px solid var(--p1);outline-offset:2px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-.app{display:flex;flex-direction:column;height:100vh}
+.app{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
 
 /* TOP BAR */
-.topbar{display:flex;align-items:center;gap:12px;padding:0 20px;height:52px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
+.topbar{display:flex;align-items:center;gap:10px;padding:0 16px;height:52px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;z-index:20}
+.menu-btn{display:none;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--txt);cursor:pointer;flex-shrink:0}
+.menu-btn:hover{background:var(--surface2)}
 .logo{display:flex;align-items:center;gap:9px;font-family:var(--ff-d);font-weight:800;font-size:17px;color:var(--txt);text-decoration:none;letter-spacing:-.3px}
 .logo-icon{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--p1),var(--p4));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;box-shadow:0 0 16px rgba(139,92,246,.4)}
-.tab-bar{display:flex;gap:2px;margin-left:20px}
-.tab{padding:6px 16px;border-radius:7px;font-size:13px;cursor:pointer;color:var(--txt2);border:1px solid transparent;background:none;font-family:var(--ff-b);font-weight:500;transition:all .2s;letter-spacing:-.1px}
-.tab.active{background:var(--surface2);color:var(--txt);border-color:var(--border2)}
-.tab:hover:not(.active){color:var(--txt);background:var(--surface)}
+.tab-bar{display:flex;gap:2px;margin-left:8px}
+.tab{padding:6px 14px;border-radius:7px;font-size:13px;cursor:pointer;color:var(--txt2);border:1px solid transparent;background:none;font-family:var(--ff-b);font-weight:500;transition:background .2s,color .2s;letter-spacing:-.1px}
+.tab[aria-selected="true"]{background:var(--surface2);color:var(--txt);border-color:var(--border2)}
+.tab:hover:not([aria-selected="true"]){color:var(--txt);background:var(--surface)}
 .topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
-.meta-text{font-size:11px;color:var(--txt3);font-family:var(--ff-m);margin-right:4px}
-.btn{padding:7px 16px;border-radius:20px;font-size:12px;font-family:var(--ff-b);font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--txt2);transition:all .2s}
+.save-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--txt3);font-family:var(--ff-m)}
+.save-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+.btn{padding:7px 14px;border-radius:20px;font-size:12px;font-family:var(--ff-b);font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--txt2);transition:all .2s;white-space:nowrap}
 .btn:hover{color:var(--txt);border-color:var(--border2);background:var(--surface2)}
 .btn-primary{background:linear-gradient(135deg,var(--p4),var(--p1));color:#fff;border:none;box-shadow:0 0 18px rgba(139,92,246,.35)}
 .btn-primary:hover{box-shadow:0 0 28px rgba(139,92,246,.55);transform:translateY(-1px)}
 
 /* MAIN */
-.main{display:flex;flex:1;overflow:hidden}
+.main{display:flex;flex:1;overflow:hidden;position:relative}
 
 /* SIDEBAR */
-.sidebar{width:210px;background:var(--bg2);border-right:1px solid var(--border);padding:14px 10px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;overflow-y:auto}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);padding:14px 10px;display:flex;flex-direction:column;gap:3px;flex-shrink:0;overflow-y:auto;z-index:15}
+.sidebar-backdrop{display:none}
 .sidebar-label{font-size:10px;font-family:var(--ff-m);color:var(--txt3);text-transform:uppercase;letter-spacing:.14em;padding:4px 10px;margin-top:10px;margin-bottom:2px}
 .sidebar-label:first-child{margin-top:0}
-.sidebar-item{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:9px;font-size:13px;color:var(--txt2);cursor:pointer;transition:all .2s;border:1px solid transparent;font-weight:400}
+.sidebar-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;font-size:13px;color:var(--txt2);cursor:pointer;transition:all .2s;border:1px solid transparent;font-weight:400;width:100%;text-align:left;background:none;font-family:var(--ff-b)}
 .sidebar-item:hover{background:var(--surface);color:var(--txt)}
-.sidebar-item.active{background:rgba(139,92,246,.14);color:var(--p2);border-color:rgba(139,92,246,.22);font-weight:500}
+.sidebar-item[aria-current="page"]{background:rgba(139,92,246,.14);color:var(--p2);border-color:rgba(139,92,246,.22);font-weight:500}
 .s-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.sidebar-item.active .s-dot{box-shadow:0 0 7px currentColor}
+.sidebar-item[aria-current="page"] .s-dot{box-shadow:0 0 7px currentColor}
+.workspace-pill{margin-top:auto;padding:10px 11px;border-radius:9px;background:var(--surface);border:1px solid var(--border);font-size:12px;color:var(--txt2)}
 
 /* VIEW PANELS */
-.view{display:none;flex:1;flex-direction:column;overflow:hidden}
+.view{display:none;flex:1;flex-direction:column;overflow:hidden;min-width:0}
 .view.active{display:flex}
 
 /* EDITOR */
-.editor-head{padding:20px 26px 0;flex-shrink:0}
-.editor-title{font-family:var(--ff-d);font-size:22px;font-weight:800;color:var(--txt);margin-bottom:3px;letter-spacing:-.4px}
-.editor-meta{font-size:11px;color:var(--txt3);font-family:var(--ff-m)}
-.editor-controls{display:flex;gap:10px;padding:14px 26px;flex-shrink:0;border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap}
+.editor-head{padding:18px 24px 0;flex-shrink:0}
+.editor-title{font-family:var(--ff-d);font-size:22px;font-weight:800;color:var(--txt);margin-bottom:4px;letter-spacing:-.4px}
+.editor-meta{font-size:12px;color:var(--txt3);font-family:var(--ff-m)}
+.editor-hint{font-size:12px;color:var(--txt3);margin-top:6px;display:flex;align-items:center;gap:6px}
+.editor-hint kbd{font-family:var(--ff-m);font-size:10px;padding:2px 6px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--txt2)}
+.editor-controls{display:flex;gap:12px;padding:12px 24px;flex-shrink:0;border-bottom:1px solid var(--border);align-items:center;flex-wrap:wrap}
 .ctrl-group{display:flex;gap:7px;align-items:center}
 .ctrl-label{font-size:10px;color:var(--txt3);font-family:var(--ff-m);text-transform:uppercase;letter-spacing:.08em}
-.ctrl-select{background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--txt);font-size:12px;padding:5px 10px;font-family:var(--ff-b);cursor:pointer;outline:none}
-.ctrl-select:focus{border-color:var(--p1)}
-.color-pill{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s;flex-shrink:0}
-.color-pill:hover,.color-pill.sel{border-color:#fff;transform:scale(1.2)}
-.editor-body{flex:1;overflow-y:auto;padding:20px 26px}
+.ctrl-select,.ctrl-search{background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--txt);font-size:12px;padding:6px 10px;font-family:var(--ff-b);cursor:pointer;outline:none;transition:border-color .2s}
+.ctrl-select:focus,.ctrl-search:focus{border-color:var(--p1)}
+.ctrl-search{min-width:180px;cursor:text}
+.ctrl-search::placeholder{color:var(--txt3)}
+.color-pill{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .2s,border-color .2s;flex-shrink:0}
+.color-pill:hover,.color-pill.sel{border-color:#fff;transform:scale(1.15)}
+.editor-body{flex:1;overflow-y:auto;padding:18px 24px 28px}
 
 /* KPI ROW */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
-.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px 16px}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px 16px;transition:border-color .2s}
+.kpi-card:hover{border-color:var(--border2)}
 .kpi-label{font-size:10px;color:var(--txt3);font-family:var(--ff-m);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px}
 .kpi-number{font-family:var(--ff-d);font-size:21px;font-weight:700;color:var(--txt);letter-spacing:-.5px}
 .kpi-sub{font-size:11px;color:var(--txt3);font-family:var(--ff-m);margin-top:4px}
 
 /* STATEMENT TABLE */
-.statement-wrap{border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:20px}
+.statement-wrap{border-radius:12px;overflow:auto;border:1px solid var(--border);margin-bottom:20px;max-height:calc(100vh - 340px)}
 .statement{width:100%;border-collapse:collapse;font-size:13px}
-.statement thead th{font-family:var(--ff-m);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--txt3);padding:10px 14px;text-align:right;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
+.statement thead th{position:sticky;top:0;z-index:2;font-family:var(--ff-m);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--txt3);padding:11px 14px;text-align:right;border-bottom:1px solid var(--border);background:var(--bg3);backdrop-filter:blur(8px)}
 .statement thead th:first-child{text-align:left}
 .statement .sec-head td{font-family:var(--ff-m);font-size:10px;font-weight:600;color:var(--p2);text-transform:uppercase;letter-spacing:.12em;padding:10px 14px;background:rgba(139,92,246,.07);border-top:1px solid rgba(139,92,246,.15)}
 .statement tr.r-row{transition:background .15s}
-.statement tr.r-row:hover{background:rgba(255,255,255,.025)}
+.statement tr.r-row:hover{background:rgba(255,255,255,.03)}
+.statement tr.r-row.hidden-row{display:none}
 .statement .r-row td{padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--txt2)}
 .statement .r-row td:first-child{color:var(--txt)}
 .statement .r-row td:not(:first-child){text-align:right;font-family:var(--ff-m)}
@@ -91,41 +105,46 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff-b)}
 .statement .r-total td{padding:11px 14px;border-top:2px solid var(--p1);background:rgba(139,92,246,.1);color:var(--p2);font-weight:600;font-family:var(--ff-m);font-size:13px}
 .statement .r-total td:first-child{font-family:var(--ff-b);font-size:14px;letter-spacing:-.2px}
 .neg{color:var(--red)!important}
-.badge{font-size:10px;padding:2px 7px;border-radius:5px;margin-left:5px}
+.badge{font-size:10px;padding:2px 7px;border-radius:5px;margin-left:5px;white-space:nowrap}
 .badge-pos{background:rgba(52,211,153,.12);color:var(--green)}
 .badge-neg{background:rgba(248,113,113,.12);color:var(--red)}
-.editable{cursor:pointer;border-radius:5px;padding:2px 5px;transition:background .15s;display:inline-block}
-.editable:hover{background:rgba(139,92,246,.18)}
-.editable.editing{background:rgba(139,92,246,.25);outline:1px solid var(--p1)}
-.cell-inp{background:transparent;border:none;outline:none;color:var(--txt);font-family:var(--ff-m);font-size:13px;text-align:right;width:90px}
+.editable{cursor:pointer;border-radius:5px;padding:3px 6px;transition:background .15s,box-shadow .15s;display:inline-block;border:1px dashed transparent}
+.editable:hover{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.3)}
+.editable:focus-visible{background:rgba(139,92,246,.2);border-color:var(--p1)}
+.editable.editing{background:rgba(139,92,246,.25);border-color:var(--p1);border-style:solid}
+.cell-inp{background:transparent;border:none;outline:none;color:var(--txt);font-family:var(--ff-m);font-size:13px;text-align:right;width:100px}
+.empty-search{padding:32px;text-align:center;color:var(--txt3);font-size:13px}
 
 /* ANALYTICS */
-.analytics-body{flex:1;overflow-y:auto;padding:20px 26px}
+.analytics-body{flex:1;overflow-y:auto;padding:18px 24px 28px}
 .panel-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .a-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
 .a-card-title{font-size:10px;font-family:var(--ff-m);color:var(--txt3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
 .chart-wrap{position:relative}
 
 /* TEMPLATES */
-.tpl-body{flex:1;overflow-y:auto;padding:20px 26px}
-.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.tpl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .25s}
-.tpl-card:hover{border-color:var(--p1);transform:translateY(-3px);box-shadow:0 0 24px rgba(139,92,246,.2)}
+.tpl-body{flex:1;overflow-y:auto;padding:18px 24px 28px}
+.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.tpl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;text-align:left;width:100%;font:inherit;color:inherit}
+.tpl-card:hover,.tpl-card:focus-visible{border-color:var(--p1);transform:translateY(-2px);box-shadow:0 0 24px rgba(139,92,246,.2)}
 .tpl-preview{height:96px;display:flex;align-items:flex-end;padding:12px;gap:4px}
 .tpl-info{padding:12px 14px}
 .tpl-name{font-family:var(--ff-d);font-size:14px;font-weight:700;color:var(--txt);margin-bottom:3px;letter-spacing:-.2px}
-.tpl-desc{font-size:11px;color:var(--txt3)}
-.tpl-tag{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,.15);color:var(--p2);border:1px solid rgba(139,92,246,.2);font-family:var(--ff-m);margin-left:auto}
+.tpl-desc{font-size:11px;color:var(--txt3);line-height:1.4}
+.tpl-tag{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,.15);color:var(--p2);border:1px solid rgba(139,92,246,.2);font-family:var(--ff-m)}
 
 /* RIGHT PANEL */
-.rp{width:256px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
-.rp-head{padding:16px 18px;border-bottom:1px solid var(--border);font-family:var(--ff-d);font-size:14px;font-weight:700;color:var(--txt)}
+.rp-toggle{display:none;position:fixed;bottom:80px;right:16px;z-index:25;width:44px;height:44px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--p4),var(--p1));color:#fff;cursor:pointer;box-shadow:var(--shadow);font-size:18px}
+.rp{width:270px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.rp-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.rp-head-title{font-family:var(--ff-d);font-size:14px;font-weight:700;color:var(--txt)}
+.rp-close{display:none;background:none;border:none;color:var(--txt2);cursor:pointer;font-size:20px;line-height:1;padding:4px}
 .rp-body{flex:1;overflow-y:auto;padding:14px}
 .rp-sec{margin-bottom:18px}
 .rp-sec-label{font-size:10px;font-family:var(--ff-m);color:var(--txt3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:9px}
 .rp-field{margin-bottom:10px}
 .rp-field label{font-size:11px;color:var(--txt2);display:block;margin-bottom:4px}
-.rp-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--txt);font-size:12px;padding:7px 10px;font-family:var(--ff-b);outline:none}
+.rp-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--txt);font-size:12px;padding:8px 10px;font-family:var(--ff-b);outline:none;transition:border-color .2s}
 .rp-input:focus{border-color:var(--p1)}
 .rp-btn{width:100%;margin-bottom:7px;padding:9px;border-radius:9px;font-size:12px;font-family:var(--ff-b);font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--txt2);transition:all .2s;text-align:center}
 .rp-btn:hover{color:var(--txt);border-color:var(--border2)}
@@ -133,547 +152,813 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff-b)}
 .rp-btn-ai:hover{box-shadow:0 0 22px rgba(139,92,246,.5)}
 .color-row{display:flex;gap:7px;flex-wrap:wrap}
 .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(139,92,246,.3),transparent);margin:4px 0 14px}
+.shortcuts-help{margin-top:8px;padding:10px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font-size:11px;color:var(--txt3);line-height:1.7}
+.shortcuts-help strong{color:var(--txt2);display:block;margin-bottom:4px;font-size:10px;font-family:var(--ff-m);text-transform:uppercase;letter-spacing:.08em}
 
 /* TOAST */
-.toast{position:fixed;bottom:22px;right:22px;background:rgba(13,5,32,.95);border:1px solid rgba(52,211,153,.3);color:var(--green);padding:11px 20px;border-radius:10px;font-size:13px;font-family:var(--ff-b);opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;backdrop-filter:blur(12px)}
-.toast.show{opacity:1}
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:min(360px,calc(100vw - 44px))}
+.toast{background:rgba(13,5,32,.96);border:1px solid var(--border2);color:var(--txt);padding:12px 18px;border-radius:10px;font-size:13px;font-family:var(--ff-b);opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s;backdrop-filter:blur(12px);pointer-events:auto;display:flex;align-items:flex-start;gap:10px;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{border-color:rgba(52,211,153,.35)}
+.toast.success .toast-icon{color:var(--green)}
+.toast.info{border-color:rgba(139,92,246,.35)}
+.toast.info .toast-icon{color:var(--p2)}
+.toast-icon{flex-shrink:0;font-size:15px;line-height:1.3}
 
 /* SCROLLBAR */
-::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(139,92,246,.3);border-radius:2px}
+::-webkit-scrollbar-thumb{background:rgba(139,92,246,.35);border-radius:3px}
 
 /* RESPONSIVE */
-@media(max-width:900px){
-  .sidebar{width:180px}
-  .kpi-row{grid-template-columns:repeat(2,1fr)}
-  .rp{display:none}
-  .tpl-grid{grid-template-columns:repeat(2,1fr)}
+@media(max-width:1024px){
+  .rp{position:fixed;right:0;top:52px;bottom:0;transform:translateX(100%);transition:transform .25s ease;z-index:30;box-shadow:var(--shadow)}
+  .rp.open{transform:translateX(0)}
+  .rp-close{display:block}
+  .rp-toggle{display:flex;align-items:center;justify-content:center}
 }
-@media(max-width:640px){
-  .sidebar{display:none}
+@media(max-width:900px){
   .kpi-row{grid-template-columns:repeat(2,1fr)}
   .panel-row{grid-template-columns:1fr}
-  .tpl-grid{grid-template-columns:1fr}
-  .topbar .meta-text{display:none}
+}
+@media(max-width:768px){
+  .menu-btn{display:flex}
+  .tab-bar{display:none}
+  .sidebar{position:fixed;left:0;top:52px;bottom:0;transform:translateX(-100%);transition:transform .25s ease;width:min(280px,85vw);box-shadow:var(--shadow)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-backdrop{display:block;position:fixed;inset:52px 0 0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:14}
+  .sidebar-backdrop.visible{opacity:1;pointer-events:auto}
+  .save-status span:last-child{display:none}
+  .editor-controls .ctrl-group.accent-group{margin-left:0}
+  .statement-wrap{max-height:none}
+}
+@media(max-width:480px){
+  .topbar-right .btn:not(.btn-primary){display:none}
+  .kpi-row{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <a class="logo" href="#">
-    <div class="logo-icon">N</div>
+<header class="topbar">
+  <button type="button" class="menu-btn" id="menuBtn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">☰</button>
+  <a class="logo" href="#" aria-label="Nummer home">
+    <div class="logo-icon" aria-hidden="true">N</div>
     Nummer
   </a>
-  <div class="tab-bar">
-    <button class="tab active" onclick="switchView('editor')">Editor</button>
-    <button class="tab" onclick="switchView('analytics')">Analytics</button>
-    <button class="tab" onclick="switchView('templates')">Templates</button>
-  </div>
+  <nav class="tab-bar" role="tablist" aria-label="Main views">
+    <button type="button" class="tab" role="tab" id="tab-editor" aria-selected="true" aria-controls="view-editor" data-view="editor">Editor</button>
+    <button type="button" class="tab" role="tab" id="tab-analytics" aria-selected="false" aria-controls="view-analytics" data-view="analytics">Analytics</button>
+    <button type="button" class="tab" role="tab" id="tab-templates" aria-selected="false" aria-controls="view-templates" data-view="templates">Templates</button>
+  </nav>
   <div class="topbar-right">
-    <span class="meta-text">Auto-saved · 2s ago</span>
-    <button class="btn" onclick="toast('PDF exported successfully ↓')">Export PDF</button>
-    <button class="btn" onclick="toast('Share link copied to clipboard')">Share</button>
-    <button class="btn btn-primary" onclick="toast('✓ Published to investor portal')">Publish</button>
+    <div class="save-status" aria-live="polite">
+      <span class="save-dot" aria-hidden="true"></span>
+      <span id="saveLabel">Saved just now</span>
+    </div>
+    <button type="button" class="btn" data-action="export-pdf">Export PDF</button>
+    <button type="button" class="btn" data-action="share">Share</button>
+    <button type="button" class="btn btn-primary" data-action="publish">Publish</button>
   </div>
-</div>
+</header>
 
-<!-- MAIN -->
 <div class="main">
+  <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="sidebar-label">Reports</div>
-  <div class="sidebar-item active" id="sb-balance" onclick="loadStmt('balance')">
-    <div class="s-dot" style="background:var(--p1)"></div>Balance Sheet
-  </div>
-  <div class="sidebar-item" id="sb-income" onclick="loadStmt('income')">
-    <div class="s-dot" style="background:var(--blue)"></div>Income Statement
-  </div>
-  <div class="sidebar-item" id="sb-cashflow" onclick="loadStmt('cashflow')">
-    <div class="s-dot" style="background:var(--green)"></div>Cash Flow
-  </div>
-  <div class="sidebar-label">Dashboards</div>
-  <div class="sidebar-item" onclick="switchView('analytics')">
-    <div class="s-dot" style="background:var(--p2)"></div>KPI Overview
-  </div>
-  <div class="sidebar-item" onclick="switchView('templates')">
-    <div class="s-dot" style="background:#F472B6"></div>Templates
-  </div>
-  <div class="sidebar-label" style="margin-top:auto;padding-top:12px">Workspace</div>
-  <div class="sidebar-item" style="opacity:.5;cursor:default">
-    <div class="s-dot" style="background:var(--txt3)"></div>Acme Corp · FY2024
-  </div>
-</div>
+  <aside class="sidebar" id="sidebar" aria-label="Reports navigation">
+    <div class="sidebar-label">Reports</div>
+    <button type="button" class="sidebar-item" id="sb-balance" data-stmt="balance" aria-current="page">
+      <span class="s-dot" style="background:var(--p1)" aria-hidden="true"></span>Balance Sheet
+    </button>
+    <button type="button" class="sidebar-item" id="sb-income" data-stmt="income">
+      <span class="s-dot" style="background:var(--blue)" aria-hidden="true"></span>Income Statement
+    </button>
+    <button type="button" class="sidebar-item" id="sb-cashflow" data-stmt="cashflow">
+      <span class="s-dot" style="background:var(--green)" aria-hidden="true"></span>Cash Flow
+    </button>
+    <div class="sidebar-label">Dashboards</div>
+    <button type="button" class="sidebar-item" data-view="analytics">
+      <span class="s-dot" style="background:var(--p2)" aria-hidden="true"></span>KPI Overview
+    </button>
+    <button type="button" class="sidebar-item" data-view="templates">
+      <span class="s-dot" style="background:#F472B6" aria-hidden="true"></span>Templates
+    </button>
+    <div class="workspace-pill" id="workspacePill">Acme Corp · FY2024</div>
+  </aside>
 
-<!-- EDITOR VIEW -->
-<div class="view active" id="view-editor">
-  <div class="editor-head">
-    <div class="editor-title" id="stmt-title">Balance Sheet</div>
-    <div class="editor-meta" id="stmt-meta">Acme Corporation · As of December 31, 2024 · USD ($000s)</div>
-  </div>
-  <div class="editor-controls">
-    <div class="ctrl-group">
-      <span class="ctrl-label">Period</span>
-      <select class="ctrl-select" onchange="toast('Period updated')">
-        <option>FY 2024</option><option>FY 2023</option><option>Q4 2024</option><option>Q3 2024</option>
-      </select>
-    </div>
-    <div class="ctrl-group">
-      <span class="ctrl-label">Compare</span>
-      <select class="ctrl-select">
-        <option>vs Prior Year</option><option>vs Budget</option><option>vs Q3 2024</option>
-      </select>
-    </div>
-    <div class="ctrl-group">
-      <span class="ctrl-label">Currency</span>
-      <select class="ctrl-select"><option>USD ($)</option><option>EUR (€)</option><option>GBP (£)</option></select>
-    </div>
-    <div class="ctrl-group" style="margin-left:auto;gap:5px">
-      <span class="ctrl-label">Accent</span>
-      <div class="color-pill sel" style="background:#8B5CF6" onclick="setAccent('#8B5CF6','#6B2FD4',this)"></div>
-      <div class="color-pill" style="background:#3B82F6" onclick="setAccent('#3B82F6','#1D4ED8',this)"></div>
-      <div class="color-pill" style="background:#10B981" onclick="setAccent('#10B981','#059669',this)"></div>
-      <div class="color-pill" style="background:#F59E0B" onclick="setAccent('#F59E0B','#D97706',this)"></div>
-      <div class="color-pill" style="background:#EC4899" onclick="setAccent('#EC4899','#DB2777',this)"></div>
-    </div>
-  </div>
-  <div class="editor-body">
-    <div class="kpi-row" id="kpi-row"></div>
-    <div class="statement-wrap" id="stmt-wrap"></div>
-  </div>
-</div>
-
-<!-- ANALYTICS VIEW -->
-<div class="view" id="view-analytics">
-  <div class="editor-head">
-    <div class="editor-title">Analytics Dashboard</div>
-    <div class="editor-meta">Acme Corporation · FY2024 Performance Overview</div>
-  </div>
-  <div class="analytics-body">
-    <div class="kpi-row">
-      <div class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-number">$12.4M</div><div class="kpi-sub" style="color:var(--green)">↑ +18.2% YoY</div></div>
-      <div class="kpi-card"><div class="kpi-label">Gross Margin</div><div class="kpi-number">68.4%</div><div class="kpi-sub" style="color:var(--green)">↑ +4.1pp YoY</div></div>
-      <div class="kpi-card"><div class="kpi-label">EBITDA</div><div class="kpi-number">$2.8M</div><div class="kpi-sub" style="color:var(--green)">↑ +22.9% YoY</div></div>
-      <div class="kpi-card"><div class="kpi-label">Net Cash</div><div class="kpi-number">$4.2M</div><div class="kpi-sub" style="color:var(--green)">↑ +31.5% YoY</div></div>
-    </div>
-    <div class="panel-row">
-      <div class="a-card">
-        <div class="a-card-title">Revenue by Quarter ($K)</div>
-        <div class="chart-wrap" style="height:180px"><canvas id="revChart" role="img" aria-label="Revenue by quarter">Q1:2400 Q2:2900 Q3:3200 Q4:3900</canvas></div>
+  <!-- EDITOR -->
+  <section class="view active" id="view-editor" role="tabpanel" aria-labelledby="tab-editor">
+    <header class="editor-head">
+      <h1 class="editor-title" id="stmt-title">Balance Sheet</h1>
+      <p class="editor-meta" id="stmt-meta">Acme Corporation · As of December 31, 2024 · USD ($000s)</p>
+      <p class="editor-hint">
+        <span aria-hidden="true">✎</span>
+        Click any FY 2024 value to edit · Press <kbd>Enter</kbd> to save, <kbd>Esc</kbd> to cancel
+      </p>
+    </header>
+    <div class="editor-controls">
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="periodSelect">Period</label>
+        <select class="ctrl-select" id="periodSelect">
+          <option>FY 2024</option><option>FY 2023</option><option>Q4 2024</option><option>Q3 2024</option>
+        </select>
       </div>
-      <div class="a-card">
-        <div class="a-card-title">Expense Breakdown</div>
-        <div class="chart-wrap" style="height:180px"><canvas id="expChart" role="img" aria-label="Expense breakdown">COGS 32% R&D 22% S&M 24% G&A 14% Other 8%</canvas></div>
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="compareSelect">Compare</label>
+        <select class="ctrl-select" id="compareSelect">
+          <option>vs Prior Year</option><option>vs Budget</option><option>vs Q3 2024</option>
+        </select>
       </div>
-    </div>
-    <div class="a-card" style="margin-bottom:14px">
-      <div class="a-card-title">Revenue vs EBITDA — Monthly Trend ($K)</div>
-      <div class="chart-wrap" style="height:200px"><canvas id="trendChart" role="img" aria-label="Monthly revenue and EBITDA trend">Monthly data Jan–Dec 2024</canvas></div>
-    </div>
-    <div class="kpi-row">
-      <div class="kpi-card"><div class="kpi-label">Current Ratio</div><div class="kpi-number">2.41x</div><div class="kpi-sub">Healthy liquidity</div></div>
-      <div class="kpi-card"><div class="kpi-label">Debt / Equity</div><div class="kpi-number">0.49x</div><div class="kpi-sub">Low leverage</div></div>
-      <div class="kpi-card"><div class="kpi-label">Asset Turnover</div><div class="kpi-number">1.12x</div><div class="kpi-sub">Efficient ops</div></div>
-      <div class="kpi-card"><div class="kpi-label">Return on Equity</div><div class="kpi-number">24.3%</div><div class="kpi-sub" style="color:var(--green)">↑ Strong performance</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- TEMPLATES VIEW -->
-<div class="view" id="view-templates">
-  <div class="editor-head">
-    <div class="editor-title">Template Gallery</div>
-    <div class="editor-meta">Choose a starting point for your next report — click any template to apply it</div>
-  </div>
-  <div class="tpl-body">
-    <div class="tpl-grid" id="tpl-grid"></div>
-  </div>
-</div>
-
-<!-- RIGHT PANEL -->
-<div class="rp" id="right-panel">
-  <div class="rp-head">Report Settings</div>
-  <div class="rp-body">
-    <div class="rp-sec">
-      <div class="rp-sec-label">Company</div>
-      <div class="rp-field"><label>Company Name</label><input class="rp-input" value="Acme Corporation" oninput="updateMeta(this.value)"></div>
-      <div class="rp-field"><label>Report Date</label><input class="rp-input" type="text" value="December 31, 2024"></div>
-      <div class="rp-field"><label>Fiscal Year End</label>
-        <select class="rp-input"><option>December 31</option><option>March 31</option><option>June 30</option><option>September 30</option></select>
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="currencySelect">Currency</label>
+        <select class="ctrl-select" id="currencySelect">
+          <option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option>
+        </select>
       </div>
-      <div class="rp-field"><label>Unit</label>
-        <select class="rp-input"><option>Thousands ($000s)</option><option>Millions ($M)</option><option>Actual ($)</option></select>
+      <div class="ctrl-group">
+        <label class="ctrl-label" for="lineSearch">Filter</label>
+        <input type="search" class="ctrl-search" id="lineSearch" placeholder="Search line items…" autocomplete="off">
       </div>
-    </div>
-    <div class="divider"></div>
-    <div class="rp-sec">
-      <div class="rp-sec-label">Style</div>
-      <div class="rp-field"><label>Theme</label>
-        <select class="rp-input"><option>Dark Premium</option><option>Corporate Light</option><option>Minimal White</option><option>Deep Navy</option></select>
-      </div>
-      <div class="rp-field"><label>Font Pair</label>
-        <select class="rp-input"><option>Syne + DM Sans</option><option>Playfair + Inter</option><option>Monument + Mono</option></select>
-      </div>
-      <div class="rp-field">
-        <label>Accent Color</label>
-        <div class="color-row" style="margin-top:6px">
-          <div class="color-pill sel" style="background:#8B5CF6" onclick="setAccent('#8B5CF6','#6B2FD4',this)"></div>
-          <div class="color-pill" style="background:#3B82F6" onclick="setAccent('#3B82F6','#1D4ED8',this)"></div>
-          <div class="color-pill" style="background:#10B981" onclick="setAccent('#10B981','#059669',this)"></div>
-          <div class="color-pill" style="background:#F59E0B" onclick="setAccent('#F59E0B','#D97706',this)"></div>
-          <div class="color-pill" style="background:#EC4899" onclick="setAccent('#EC4899','#DB2777',this)"></div>
+      <div class="ctrl-group accent-group" style="margin-left:auto">
+        <span class="ctrl-label">Accent</span>
+        <div class="color-row" data-accent-group>
+          <button type="button" class="color-pill sel" style="background:#8B5CF6" data-accent="#8B5CF6,#6B2FD4" aria-label="Purple accent" aria-pressed="true"></button>
+          <button type="button" class="color-pill" style="background:#3B82F6" data-accent="#3B82F6,#1D4ED8" aria-label="Blue accent" aria-pressed="false"></button>
+          <button type="button" class="color-pill" style="background:#10B981" data-accent="#10B981,#059669" aria-label="Green accent" aria-pressed="false"></button>
+          <button type="button" class="color-pill" style="background:#F59E0B" data-accent="#F59E0B,#D97706" aria-label="Amber accent" aria-pressed="false"></button>
+          <button type="button" class="color-pill" style="background:#EC4899" data-accent="#EC4899,#DB2777" aria-label="Pink accent" aria-pressed="false"></button>
         </div>
       </div>
     </div>
-    <div class="divider"></div>
-    <div class="rp-sec">
-      <div class="rp-sec-label">Export</div>
-      <button class="rp-btn" onclick="toast('PDF exported successfully ↓')">⬇ Export PDF</button>
-      <button class="rp-btn" onclick="toast('Excel file downloaded ↓')">⬇ Export Excel (.xlsx)</button>
-      <button class="rp-btn" onclick="toast('PowerPoint created ↓')">⬇ Export PPTX</button>
+    <div class="editor-body">
+      <div class="kpi-row" id="kpi-row" aria-label="Key metrics"></div>
+      <div class="statement-wrap" id="stmt-wrap"></div>
     </div>
-    <div class="divider"></div>
-    <div class="rp-sec">
-      <div class="rp-sec-label">AI Assist</div>
-      <button class="rp-btn rp-btn-ai" onclick="toast('✨ Executive commentary generated!')">✨ Generate Commentary</button>
+  </section>
+
+  <!-- ANALYTICS -->
+  <section class="view" id="view-analytics" role="tabpanel" aria-labelledby="tab-analytics" hidden>
+    <header class="editor-head">
+      <h1 class="editor-title">Analytics Dashboard</h1>
+      <p class="editor-meta" id="analytics-meta">Acme Corporation · FY2024 Performance Overview</p>
+    </header>
+    <div class="analytics-body">
+      <div class="kpi-row" aria-label="Revenue metrics">
+        <article class="kpi-card"><div class="kpi-label">Total Revenue</div><div class="kpi-number">$12.4M</div><div class="kpi-sub" style="color:var(--green)">↑ +18.2% YoY</div></article>
+        <article class="kpi-card"><div class="kpi-label">Gross Margin</div><div class="kpi-number">68.4%</div><div class="kpi-sub" style="color:var(--green)">↑ +4.1pp YoY</div></article>
+        <article class="kpi-card"><div class="kpi-label">EBITDA</div><div class="kpi-number">$2.8M</div><div class="kpi-sub" style="color:var(--green)">↑ +22.9% YoY</div></article>
+        <article class="kpi-card"><div class="kpi-label">Net Cash</div><div class="kpi-number">$4.2M</div><div class="kpi-sub" style="color:var(--green)">↑ +31.5% YoY</div></article>
+      </div>
+      <div class="panel-row">
+        <article class="a-card">
+          <h2 class="a-card-title">Revenue by Quarter ($K)</h2>
+          <div class="chart-wrap" style="height:180px"><canvas id="revChart" role="img" aria-label="Quarterly revenue bar chart"></canvas></div>
+        </article>
+        <article class="a-card">
+          <h2 class="a-card-title">Expense Breakdown</h2>
+          <div class="chart-wrap" style="height:180px"><canvas id="expChart" role="img" aria-label="Expense breakdown donut chart"></canvas></div>
+        </article>
+      </div>
+      <article class="a-card" style="margin-bottom:14px">
+        <h2 class="a-card-title">Revenue vs EBITDA — Monthly Trend ($K)</h2>
+        <div class="chart-wrap" style="height:200px"><canvas id="trendChart" role="img" aria-label="Monthly revenue and EBITDA line chart"></canvas></div>
+      </article>
+      <div class="kpi-row" aria-label="Financial ratios">
+        <article class="kpi-card"><div class="kpi-label">Current Ratio</div><div class="kpi-number">2.41x</div><div class="kpi-sub">Healthy liquidity</div></article>
+        <article class="kpi-card"><div class="kpi-label">Debt / Equity</div><div class="kpi-number">0.49x</div><div class="kpi-sub">Low leverage</div></article>
+        <article class="kpi-card"><div class="kpi-label">Asset Turnover</div><div class="kpi-number">1.12x</div><div class="kpi-sub">Efficient ops</div></article>
+        <article class="kpi-card"><div class="kpi-label">Return on Equity</div><div class="kpi-number">24.3%</div><div class="kpi-sub" style="color:var(--green)">↑ Strong performance</div></article>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <!-- TEMPLATES -->
+  <section class="view" id="view-templates" role="tabpanel" aria-labelledby="tab-templates" hidden>
+    <header class="editor-head">
+      <h1 class="editor-title">Template Gallery</h1>
+      <p class="editor-meta">Choose a starting point — select any template to apply it to your report</p>
+    </header>
+    <div class="tpl-body">
+      <div class="tpl-grid" id="tpl-grid" role="list"></div>
+    </div>
+  </section>
+
+  <button type="button" class="rp-toggle" id="rpToggle" aria-label="Open report settings" aria-expanded="false">⚙</button>
+
+  <aside class="rp" id="right-panel" aria-label="Report settings">
+    <header class="rp-head">
+      <span class="rp-head-title">Report Settings</span>
+      <button type="button" class="rp-close" id="rpClose" aria-label="Close settings">×</button>
+    </header>
+    <div class="rp-body">
+      <section class="rp-sec">
+        <h2 class="rp-sec-label">Company</h2>
+        <div class="rp-field">
+          <label for="companyName">Company Name</label>
+          <input class="rp-input" id="companyName" type="text" value="Acme Corporation">
+        </div>
+        <div class="rp-field">
+          <label for="reportDate">Report Date</label>
+          <input class="rp-input" id="reportDate" type="text" value="December 31, 2024">
+        </div>
+        <div class="rp-field">
+          <label for="fiscalYearEnd">Fiscal Year End</label>
+          <select class="rp-input" id="fiscalYearEnd">
+            <option>December 31</option><option>March 31</option><option>June 30</option><option>September 30</option>
+          </select>
+        </div>
+        <div class="rp-field">
+          <label for="unitSelect">Unit</label>
+          <select class="rp-input" id="unitSelect">
+            <option value="000">Thousands ($000s)</option><option value="M">Millions ($M)</option><option value="1">Actual ($)</option>
+          </select>
+        </div>
+      </section>
+      <div class="divider"></div>
+      <section class="rp-sec">
+        <h2 class="rp-sec-label">Style</h2>
+        <div class="rp-field">
+          <label for="themeSelect">Theme</label>
+          <select class="rp-input" id="themeSelect">
+            <option>Dark Premium</option><option disabled>Corporate Light (soon)</option><option disabled>Minimal White (soon)</option>
+          </select>
+        </div>
+        <div class="rp-field">
+          <label>Accent Color</label>
+          <div class="color-row" style="margin-top:6px" data-accent-group>
+            <button type="button" class="color-pill sel" style="background:#8B5CF6" data-accent="#8B5CF6,#6B2FD4" aria-label="Purple" aria-pressed="true"></button>
+            <button type="button" class="color-pill" style="background:#3B82F6" data-accent="#3B82F6,#1D4ED8" aria-label="Blue" aria-pressed="false"></button>
+            <button type="button" class="color-pill" style="background:#10B981" data-accent="#10B981,#059669" aria-label="Green" aria-pressed="false"></button>
+            <button type="button" class="color-pill" style="background:#F59E0B" data-accent="#F59E0B,#D97706" aria-label="Amber" aria-pressed="false"></button>
+            <button type="button" class="color-pill" style="background:#EC4899" data-accent="#EC4899,#DB2777" aria-label="Pink" aria-pressed="false"></button>
+          </div>
+        </div>
+      </section>
+      <div class="divider"></div>
+      <section class="rp-sec">
+        <h2 class="rp-sec-label">Export</h2>
+        <button type="button" class="rp-btn" data-action="export-pdf">↓ Export PDF</button>
+        <button type="button" class="rp-btn" data-action="export-excel">↓ Export Excel (.xlsx)</button>
+        <button type="button" class="rp-btn" data-action="export-pptx">↓ Export PPTX</button>
+      </section>
+      <div class="divider"></div>
+      <section class="rp-sec">
+        <h2 class="rp-sec-label">AI Assist</h2>
+        <button type="button" class="rp-btn rp-btn-ai" data-action="ai-commentary">✨ Generate Commentary</button>
+      </section>
+      <div class="shortcuts-help" aria-label="Keyboard shortcuts">
+        <strong>Shortcuts</strong>
+        <div><kbd>1</kbd> Balance · <kbd>2</kbd> Income · <kbd>3</kbd> Cash flow</div>
+        <div><kbd>E</kbd> Editor · <kbd>A</kbd> Analytics · <kbd>T</kbd> Templates</div>
+      </div>
+    </div>
+  </aside>
+</div>
 </div>
 
-</div><!-- /main -->
-</div><!-- /app -->
-
-<div class="toast" id="toastEl"></div>
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
 
 <script>
-// ── DATA ──────────────────────────────────────────────────────────────────────
+(() => {
+'use strict';
+
+const STATEMENT_KEYS = ['balance', 'income', 'cashflow'];
+const VIEW_KEYS = ['editor', 'analytics', 'templates'];
+
 const DATA = {
-  balance:{
-    title:'Balance Sheet',
-    meta:'Acme Corporation · As of December 31, 2024 · USD ($000s)',
-    kpis:[
-      {l:'Total Assets',v:'$15,420K',s:'↑ +19.0% YoY',c:''},
-      {l:'Total Liabilities',v:'$5,840K',s:'↓ -3.2% YoY',c:'var(--green)'},
-      {l:'Shareholders Equity',v:'$9,580K',s:'↑ +34.5% YoY',c:'var(--green)'},
-      {l:'Working Capital',v:'$3,240K',s:'↑ +28.9% YoY',c:'var(--green)'},
+  balance: {
+    title: 'Balance Sheet',
+    meta: 'Acme Corporation · As of December 31, 2024 · USD ($000s)',
+    kpis: [
+      { l: 'Total Assets', v: '$15,420K', s: '↑ +19.0% YoY', c: '' },
+      { l: 'Total Liabilities', v: '$5,840K', s: '↓ -3.2% YoY', c: 'var(--green)' },
+      { l: 'Shareholders Equity', v: '$9,580K', s: '↑ +34.5% YoY', c: 'var(--green)' },
+      { l: 'Working Capital', v: '$3,240K', s: '↑ +28.9% YoY', c: 'var(--green)' },
     ],
-    cols:['FY 2024','FY 2023','Change'],
-    sections:[
-      {h:'ASSETS',rows:[
-        {n:'Cash & Cash Equivalents',c:4180,p:3240,i:true},
-        {n:'Accounts Receivable',c:2150,p:1820,i:true},
-        {n:'Inventory',c:1060,p:980,i:true},
-        {n:'Prepaid Expenses',c:290,p:340,i:true},
-        {n:'Total Current Assets',c:7680,p:6380,sub:true},
-        {n:'Property & Equipment (net)',c:5100,p:4280,i:true},
-        {n:'Intangible Assets',c:2400,p:2100,i:true},
-        {n:'Long-term Investments',c:240,p:0,i:true},
-        {n:'TOTAL ASSETS',c:15420,p:12760,tot:true},
+    sections: [
+      { h: 'ASSETS', rows: [
+        { n: 'Cash & Cash Equivalents', c: 4180, p: 3240, i: true },
+        { n: 'Accounts Receivable', c: 2150, p: 1820, i: true },
+        { n: 'Inventory', c: 1060, p: 980, i: true },
+        { n: 'Prepaid Expenses', c: 290, p: 340, i: true },
+        { n: 'Total Current Assets', c: 7680, p: 6380, sub: true },
+        { n: 'Property & Equipment (net)', c: 5100, p: 4280, i: true },
+        { n: 'Intangible Assets', c: 2400, p: 2100, i: true },
+        { n: 'Long-term Investments', c: 240, p: 0, i: true },
+        { n: 'TOTAL ASSETS', c: 15420, p: 12760, tot: true },
       ]},
-      {h:'LIABILITIES & EQUITY',rows:[
-        {n:'Accounts Payable',c:980,p:1100,i:true},
-        {n:'Accrued Liabilities',c:640,p:580,i:true},
-        {n:'Short-term Debt',c:820,p:940,i:true},
-        {n:'Total Current Liabilities',c:2440,p:2620,sub:true},
-        {n:'Long-term Debt',c:2200,p:2600,i:true},
-        {n:'Deferred Tax Liabilities',c:1200,p:1320,i:true},
-        {n:'Total Liabilities',c:5840,p:6540,sub:true},
-        {n:'Common Stock & APIC',c:3800,p:3200,i:true},
-        {n:'Retained Earnings',c:5780,p:3020,i:true},
-        {n:'Total Shareholders Equity',c:9580,p:6220,sub:true},
-        {n:'TOTAL LIAB. & EQUITY',c:15420,p:12760,tot:true},
-      ]}
-    ]
+      { h: 'LIABILITIES & EQUITY', rows: [
+        { n: 'Accounts Payable', c: 980, p: 1100, i: true },
+        { n: 'Accrued Liabilities', c: 640, p: 580, i: true },
+        { n: 'Short-term Debt', c: 820, p: 940, i: true },
+        { n: 'Total Current Liabilities', c: 2440, p: 2620, sub: true },
+        { n: 'Long-term Debt', c: 2200, p: 2600, i: true },
+        { n: 'Deferred Tax Liabilities', c: 1200, p: 1320, i: true },
+        { n: 'Total Liabilities', c: 5840, p: 6540, sub: true },
+        { n: 'Common Stock & APIC', c: 3800, p: 3200, i: true },
+        { n: 'Retained Earnings', c: 5780, p: 3020, i: true },
+        { n: 'Total Shareholders Equity', c: 9580, p: 6220, sub: true },
+        { n: 'TOTAL LIAB. & EQUITY', c: 15420, p: 12760, tot: true },
+      ]},
+    ],
   },
-  income:{
-    title:'Income Statement',
-    meta:'Acme Corporation · Fiscal Year Ended December 31, 2024 · USD ($000s)',
-    kpis:[
-      {l:'Revenue',v:'$12,420K',s:'↑ +18.2% YoY',c:'var(--green)'},
-      {l:'Gross Profit',v:'$8,495K',s:'68.4% margin',c:'var(--green)'},
-      {l:'EBITDA',v:'$2,804K',s:'22.6% margin',c:'var(--green)'},
-      {l:'Net Income',v:'$1,972K',s:'15.9% margin',c:'var(--green)'},
+  income: {
+    title: 'Income Statement',
+    meta: 'Acme Corporation · Fiscal Year Ended December 31, 2024 · USD ($000s)',
+    kpis: [
+      { l: 'Revenue', v: '$12,420K', s: '↑ +18.2% YoY', c: 'var(--green)' },
+      { l: 'Gross Profit', v: '$8,495K', s: '68.4% margin', c: 'var(--green)' },
+      { l: 'EBITDA', v: '$2,804K', s: '22.6% margin', c: 'var(--green)' },
+      { l: 'Net Income', v: '$1,972K', s: '15.9% margin', c: 'var(--green)' },
     ],
-    cols:['FY 2024','FY 2023','Change'],
-    sections:[
-      {h:'REVENUE',rows:[
-        {n:'Product Revenue',c:9820,p:8200,i:true},
-        {n:'Service Revenue',c:2600,p:2280,i:true},
-        {n:'Total Revenue',c:12420,p:10480,sub:true},
+    sections: [
+      { h: 'REVENUE', rows: [
+        { n: 'Product Revenue', c: 9820, p: 8200, i: true },
+        { n: 'Service Revenue', c: 2600, p: 2280, i: true },
+        { n: 'Total Revenue', c: 12420, p: 10480, sub: true },
       ]},
-      {h:'COST OF REVENUE',rows:[
-        {n:'Cost of Goods Sold',c:2140,p:1860,i:true},
-        {n:'Service Delivery Costs',c:1785,p:1560,i:true},
-        {n:'Total Cost of Revenue',c:3925,p:3420,sub:true},
-        {n:'GROSS PROFIT',c:8495,p:7060,tot:true},
+      { h: 'COST OF REVENUE', rows: [
+        { n: 'Cost of Goods Sold', c: 2140, p: 1860, i: true },
+        { n: 'Service Delivery Costs', c: 1785, p: 1560, i: true },
+        { n: 'Total Cost of Revenue', c: 3925, p: 3420, sub: true },
+        { n: 'GROSS PROFIT', c: 8495, p: 7060, tot: true },
       ]},
-      {h:'OPERATING EXPENSES',rows:[
-        {n:'Research & Development',c:2728,p:2306,i:true},
-        {n:'Sales & Marketing',c:2980,p:2515,i:true},
-        {n:'General & Administrative',c:1739,p:1510,i:true},
-        {n:'Total Operating Expenses',c:7447,p:6331,sub:true},
-        {n:'OPERATING INCOME (EBIT)',c:1048,p:729,tot:true},
+      { h: 'OPERATING EXPENSES', rows: [
+        { n: 'Research & Development', c: 2728, p: 2306, i: true },
+        { n: 'Sales & Marketing', c: 2980, p: 2515, i: true },
+        { n: 'General & Administrative', c: 1739, p: 1510, i: true },
+        { n: 'Total Operating Expenses', c: 7447, p: 6331, sub: true },
+        { n: 'OPERATING INCOME (EBIT)', c: 1048, p: 729, tot: true },
       ]},
-      {h:'BELOW THE LINE',rows:[
-        {n:'Interest Income',c:142,p:88,i:true},
-        {n:'Interest Expense',c:-180,p:-220,i:true},
-        {n:'Other Income (Expense)',c:62,p:24,i:true},
-        {n:'Income Before Tax',c:1072,p:621,sub:true},
-        {n:'Income Tax Expense',c:-300,p:-174,i:true},
-        {n:'NET INCOME',c:1972,p:447,tot:true},
-      ]}
-    ]
+      { h: 'BELOW THE LINE', rows: [
+        { n: 'Interest Income', c: 142, p: 88, i: true },
+        { n: 'Interest Expense', c: -180, p: -220, i: true },
+        { n: 'Other Income (Expense)', c: 62, p: 24, i: true },
+        { n: 'Income Before Tax', c: 1072, p: 621, sub: true },
+        { n: 'Income Tax Expense', c: -300, p: -174, i: true },
+        { n: 'NET INCOME', c: 1972, p: 447, tot: true },
+      ]},
+    ],
   },
-  cashflow:{
-    title:'Cash Flow Statement',
-    meta:'Acme Corporation · Fiscal Year Ended December 31, 2024 · USD ($000s)',
-    kpis:[
-      {l:'Operating CF',v:'+$2,840K',s:'↑ Strong positive',c:'var(--green)'},
-      {l:'Investing CF',v:'-$1,920K',s:'Growth investment',c:'var(--red)'},
-      {l:'Financing CF',v:'-$380K',s:'Debt reduction',c:''},
-      {l:'Net Cash Change',v:'+$540K',s:'Ending: $4,180K',c:'var(--green)'},
+  cashflow: {
+    title: 'Cash Flow Statement',
+    meta: 'Acme Corporation · Fiscal Year Ended December 31, 2024 · USD ($000s)',
+    kpis: [
+      { l: 'Operating CF', v: '+$2,840K', s: '↑ Strong positive', c: 'var(--green)' },
+      { l: 'Investing CF', v: '-$1,920K', s: 'Growth investment', c: 'var(--red)' },
+      { l: 'Financing CF', v: '-$380K', s: 'Debt reduction', c: '' },
+      { l: 'Net Cash Change', v: '+$540K', s: 'Ending: $4,180K', c: 'var(--green)' },
     ],
-    cols:['FY 2024','FY 2023','Change'],
-    sections:[
-      {h:'OPERATING ACTIVITIES',rows:[
-        {n:'Net Income',c:1972,p:447,i:true},
-        {n:'Depreciation & Amortization',c:480,p:420,i:true},
-        {n:'Stock-based Compensation',c:352,p:282,i:true},
-        {n:'Changes in Working Capital',c:36,p:-82,i:true},
-        {n:'Net Cash from Operations',c:2840,p:1067,tot:true},
+    sections: [
+      { h: 'OPERATING ACTIVITIES', rows: [
+        { n: 'Net Income', c: 1972, p: 447, i: true },
+        { n: 'Depreciation & Amortization', c: 480, p: 420, i: true },
+        { n: 'Stock-based Compensation', c: 352, p: 282, i: true },
+        { n: 'Changes in Working Capital', c: 36, p: -82, i: true },
+        { n: 'Net Cash from Operations', c: 2840, p: 1067, tot: true },
       ]},
-      {h:'INVESTING ACTIVITIES',rows:[
-        {n:'Capital Expenditures',c:-1380,p:-1100,i:true},
-        {n:'Acquisitions',c:-400,p:0,i:true},
-        {n:'Purchase of Investments',c:-240,p:0,i:true},
-        {n:'Proceeds from Asset Sales',c:100,p:60,i:true},
-        {n:'Net Cash from Investing',c:-1920,p:-1040,tot:true},
+      { h: 'INVESTING ACTIVITIES', rows: [
+        { n: 'Capital Expenditures', c: -1380, p: -1100, i: true },
+        { n: 'Acquisitions', c: -400, p: 0, i: true },
+        { n: 'Purchase of Investments', c: -240, p: 0, i: true },
+        { n: 'Proceeds from Asset Sales', c: 100, p: 60, i: true },
+        { n: 'Net Cash from Investing', c: -1920, p: -1040, tot: true },
       ]},
-      {h:'FINANCING ACTIVITIES',rows:[
-        {n:'Repayment of Debt',c:-620,p:-400,i:true},
-        {n:'Proceeds from Equity',c:280,p:0,i:true},
-        {n:'Dividends Paid',c:-40,p:0,i:true},
-        {n:'Net Cash from Financing',c:-380,p:-400,tot:true},
+      { h: 'FINANCING ACTIVITIES', rows: [
+        { n: 'Repayment of Debt', c: -620, p: -400, i: true },
+        { n: 'Proceeds from Equity', c: 280, p: 0, i: true },
+        { n: 'Dividends Paid', c: -40, p: 0, i: true },
+        { n: 'Net Cash from Financing', c: -380, p: -400, tot: true },
       ]},
-      {h:'CASH SUMMARY',rows:[
-        {n:'Beginning Cash Balance',c:3640,p:4013,i:true},
-        {n:'Net Change in Cash',c:540,p:-373,i:true},
-        {n:'ENDING CASH BALANCE',c:4180,p:3640,tot:true},
-      ]}
-    ]
-  }
+      { h: 'CASH SUMMARY', rows: [
+        { n: 'Beginning Cash Balance', c: 3640, p: 4013, i: true },
+        { n: 'Net Change in Cash', c: 540, p: -373, i: true },
+        { n: 'ENDING CASH BALANCE', c: 4180, p: 3640, tot: true },
+      ]},
+    ],
+  },
 };
 
 const TEMPLATES = [
-  {name:'Board Report',desc:'Executive KPI summary with variance analysis',tag:'Popular',bars:[5,7,6,9,8],c:'#8B5CF6'},
-  {name:'Investor Summary',desc:'Series A-ready financial package',tag:'New',bars:[4,6,8,7,9],c:'#3B82F6'},
-  {name:'Startup Finance',desc:'Model + 3-year projections',tag:'Trending',bars:[6,5,9,7,8],c:'#EC4899'},
-  {name:'Audit Statement',desc:'GAAP-compliant audit-ready format',tag:'Pro',bars:[8,7,5,6,9],c:'#F59E0B'},
-  {name:'Modern Purple',desc:'Bold brand-forward premium layout',tag:'Featured',bars:[9,7,8,5,6],c:'#A78BFA'},
-  {name:'SaaS Metrics',desc:'ARR, MRR, churn & LTV focused',tag:'SaaS',bars:[5,8,6,9,7],c:'#34D399'},
+  { name: 'Board Report', desc: 'Executive KPI summary with variance analysis', tag: 'Popular', bars: [5, 7, 6, 9, 8], c: '#8B5CF6' },
+  { name: 'Investor Summary', desc: 'Series A-ready financial package', tag: 'New', bars: [4, 6, 8, 7, 9], c: '#3B82F6' },
+  { name: 'Startup Finance', desc: 'Model + 3-year projections', tag: 'Trending', bars: [6, 5, 9, 7, 8], c: '#EC4899' },
+  { name: 'Audit Statement', desc: 'GAAP-compliant audit-ready format', tag: 'Pro', bars: [8, 7, 5, 6, 9], c: '#F59E0B' },
+  { name: 'Modern Purple', desc: 'Bold brand-forward premium layout', tag: 'Featured', bars: [9, 7, 8, 5, 6], c: '#A78BFA' },
+  { name: 'SaaS Metrics', desc: 'ARR, MRR, churn & LTV focused', tag: 'SaaS', bars: [5, 8, 6, 9, 7], c: '#34D399' },
 ];
 
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-function fmt(n){
-  if(n===undefined||n===null)return '';
-  const abs=Math.abs(n);
-  return (n<0?'-':'')+'$'+abs.toLocaleString();
-}
-function pct(c,p){
-  if(!p)return null;
-  return ((c-p)/Math.abs(p)*100).toFixed(1);
+const state = {
+  curStmt: 'balance',
+  curView: 'editor',
+  filter: '',
+  chartsBuilt: false,
+  tplBuilt: false,
+  saveSeconds: 0,
+};
+
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+function fmt(n) {
+  if (n === undefined || n === null) return '';
+  const abs = Math.abs(n);
+  return (n < 0 ? '-' : '') + '$' + abs.toLocaleString();
 }
 
-// ── RENDER ─────────────────────────────────────────────────────────────────
-let curStmt='balance';
+function pct(c, p) {
+  if (!p) return null;
+  return ((c - p) / Math.abs(p) * 100).toFixed(1);
+}
 
-function renderKPIs(kpis){
-  document.getElementById('kpi-row').innerHTML=kpis.map(k=>`
-    <div class="kpi-card">
+function markSaved() {
+  state.saveSeconds = 0;
+  $('#saveLabel').textContent = 'Saved just now';
+}
+
+function tickSaveStatus() {
+  state.saveSeconds += 1;
+  const label = $('#saveLabel');
+  if (state.saveSeconds < 5) label.textContent = 'Saved just now';
+  else if (state.saveSeconds < 60) label.textContent = `Saved ${state.saveSeconds}s ago`;
+  else label.textContent = `Saved ${Math.floor(state.saveSeconds / 60)}m ago`;
+}
+
+function toast(msg, type = 'success') {
+  const wrap = $('#toastWrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span class="toast-icon" aria-hidden="true">${type === 'success' ? '✓' : 'ℹ'}</span><span>${msg}</span>`;
+  wrap.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 300);
+  }, 3200);
+}
+
+function renderKPIs(kpis) {
+  $('#kpi-row').innerHTML = kpis.map(k => `
+    <article class="kpi-card">
       <div class="kpi-label">${k.l}</div>
       <div class="kpi-number">${k.v}</div>
-      <div class="kpi-sub" style="color:${k.c||'var(--txt3)'}">${k.s}</div>
-    </div>`).join('');
+      <div class="kpi-sub" style="color:${k.c || 'var(--txt3)'}">${k.s}</div>
+    </article>`).join('');
 }
 
-function renderStmtTable(d){
-  let h=`<table class="statement"><thead><tr>
-    <th style="text-align:left">Line Item</th>
-    <th>FY 2024</th><th>FY 2023</th><th>Change</th>
+function renderStmtTable(d) {
+  const filter = state.filter.trim().toLowerCase();
+  let visibleCount = 0;
+
+  let html = `<table class="statement"><thead><tr>
+    <th>Line Item</th><th>FY 2024</th><th>FY 2023</th><th>Change</th>
   </tr></thead><tbody>`;
-  d.sections.forEach(sec=>{
-    h+=`<tr class="sec-head"><td colspan="4">${sec.h}</td></tr>`;
-    sec.rows.forEach((row,ri)=>{
-      const change=pct(row.c,row.p);
-      const negCls=row.c<0?' neg':'';
-      const bdg=change!==null?`<span class="badge ${parseFloat(change)>=0?'badge-pos':'badge-neg'}">${parseFloat(change)>=0?'+':''}${change}%</span>`:'';
-      const cls=row.tot?'r-total':row.sub?'r-sub':'r-row';
-      const indent=row.i&&!row.tot&&!row.sub?'padding-left:30px':'';
-      h+=`<tr class="${cls}">
+
+  d.sections.forEach(sec => {
+    const sectionRows = sec.rows.map((row, ri) => {
+      const matches = !filter || row.n.toLowerCase().includes(filter);
+      return { row, ri, matches };
+    });
+    const sectionVisible = sectionRows.some(r => r.matches);
+    if (filter && !sectionVisible) return;
+
+    html += `<tr class="sec-head"><td colspan="4">${sec.h}</td></tr>`;
+    sectionRows.forEach(({ row, ri, matches }) => {
+      const hidden = matches ? '' : ' hidden-row';
+      if (matches) visibleCount++;
+      const change = pct(row.c, row.p);
+      const negCls = row.c < 0 ? ' neg' : '';
+      const badge = change !== null
+        ? `<span class="badge ${parseFloat(change) >= 0 ? 'badge-pos' : 'badge-neg'}">${parseFloat(change) >= 0 ? '+' : ''}${change}%</span>`
+        : '';
+      const cls = row.tot ? 'r-total' : row.sub ? 'r-sub' : `r-row${hidden}`;
+      const indent = row.i && !row.tot && !row.sub ? 'padding-left:28px' : '';
+      const editable = row.i && !row.tot && !row.sub
+        ? `<button type="button" class="editable${negCls}" data-stmt="${state.curStmt}" data-sec="${sec.h}" data-ri="${ri}" data-f="c" aria-label="Edit ${row.n}">${fmt(row.c)}</button>`
+        : `<span class="${negCls.trim()}">${fmt(row.c)}</span>`;
+
+      html += `<tr class="${cls}" data-line="${row.n.toLowerCase()}">
         <td style="${indent}">${row.n}</td>
-        <td><span class="editable${negCls}" data-stmt="${curStmt}" data-sec="${sec.h}" data-ri="${ri}" data-f="c" onclick="startEdit(this)">${fmt(row.c)}</span></td>
+        <td>${editable}</td>
         <td class="${negCls.trim()}">${fmt(row.p)}</td>
-        <td>${bdg}</td>
+        <td>${badge}</td>
       </tr>`;
     });
   });
-  h+=`</tbody></table>`;
-  document.getElementById('stmt-wrap').innerHTML=h;
+
+  html += '</tbody></table>';
+
+  if (filter && visibleCount === 0) {
+    $('#stmt-wrap').innerHTML = `<div class="empty-search">No line items match “${state.filter}”</div>`;
+  } else {
+    $('#stmt-wrap').innerHTML = html;
+  }
 }
 
-function loadStmt(key){
-  curStmt=key;
-  ['balance','income','cashflow'].forEach(k=>{
-    document.getElementById('sb-'+k).classList.toggle('active',k===key);
+function loadStmt(key) {
+  state.curStmt = key;
+  STATEMENT_KEYS.forEach(k => {
+    const btn = $(`#sb-${k}`);
+    if (k === key) btn.setAttribute('aria-current', 'page');
+    else btn.removeAttribute('aria-current');
   });
-  const d=DATA[key];
-  document.getElementById('stmt-title').textContent=d.title;
-  document.getElementById('stmt-meta').textContent=d.meta;
+  const d = DATA[key];
+  $('#stmt-title').textContent = d.title;
+  $('#stmt-meta').textContent = d.meta;
   renderKPIs(d.kpis);
   renderStmtTable(d);
   switchView('editor');
+  closeSidebar();
 }
 
-// ── CELL EDITING ──────────────────────────────────────────────────────────────
-function startEdit(el){
-  if(el.classList.contains('editing'))return;
-  el.classList.add('editing');
-  const raw=el.textContent.replace(/[$,\-]/g,'');
-  const inp=document.createElement('input');
-  inp.type='text';inp.className='cell-inp';inp.value=raw;
-  el.textContent='';el.appendChild(inp);
-  inp.focus();inp.select();
-  const done=()=>finishEdit(el,inp);
-  inp.addEventListener('blur',done);
-  inp.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key==='Escape')inp.blur()});
-}
-function finishEdit(el,inp){
-  el.classList.remove('editing');
-  const v=parseFloat(inp.value.replace(/[^0-9.\-]/g,''));
-  if(!isNaN(v)){
-    const stmt=el.dataset.stmt,secH=el.dataset.sec,ri=parseInt(el.dataset.ri),f=el.dataset.f;
-    const sec=DATA[stmt].sections.find(s=>s.h===secH);
-    if(sec)sec.rows[ri][f]=v;
-    toast('✓ Value updated — recalculating...');
-  }
-  renderStmtTable(DATA[curStmt]);
-}
-
-// ── VIEW SWITCHING ──────────────────────────────────────────────────────────
-function switchView(v){
-  ['editor','analytics','templates'].forEach(id=>{
-    const el=document.getElementById('view-'+id);
-    el.classList.toggle('active',id===v);
+function switchView(view) {
+  state.curView = view;
+  VIEW_KEYS.forEach(id => {
+    const panel = $(`#view-${id}`);
+    const isActive = id === view;
+    panel.classList.toggle('active', isActive);
+    panel.hidden = !isActive;
   });
-  document.querySelectorAll('.tab').forEach((t,i)=>{
-    t.classList.toggle('active',['editor','analytics','templates'][i]===v);
+  $$('.tab').forEach(tab => {
+    const selected = tab.dataset.view === view;
+    tab.setAttribute('aria-selected', selected);
   });
-  document.getElementById('right-panel').style.display=v==='editor'?'flex':'none';
-  if(v==='analytics')initCharts();
-  if(v==='templates')renderTemplates();
+  const showRp = view === 'editor';
+  $('#right-panel').style.display = showRp ? 'flex' : 'none';
+  $('#rpToggle').style.display = showRp && window.innerWidth <= 1024 ? 'flex' : 'none';
+  if (view === 'analytics') initCharts();
+  if (view === 'templates') renderTemplates();
+  closeSidebar();
 }
 
-// ── ACCENT COLOR ──────────────────────────────────────────────────────────────
-function setAccent(c1,c2,el){
-  document.documentElement.style.setProperty('--p1',c1);
-  document.documentElement.style.setProperty('--p4',c2);
-  document.documentElement.style.setProperty('--p2',c1+'CC');
-  document.querySelectorAll('.color-pill').forEach(p=>p.classList.remove('sel'));
-  document.querySelectorAll('[onclick^="setAccent"]').forEach(p=>{
-    if(p.style.background===c1)p.classList.add('sel');
-  });
-  renderStmtTable(DATA[curStmt]);
-}
+let editOriginal = null;
 
-// ── META UPDATE ───────────────────────────────────────────────────────────────
-function updateMeta(name){
-  const d=DATA[curStmt];
-  const parts=d.meta.split('·');
-  parts[0]=name+' ';
-  d.meta=parts.join('·');
-  document.getElementById('stmt-meta').textContent=d.meta;
-}
+function startEdit(btn) {
+  if (btn.classList.contains('editing')) return;
+  editOriginal = btn.textContent;
+  btn.classList.add('editing');
+  const raw = btn.textContent.replace(/[$,\-]/g, '');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.className = 'cell-inp';
+  inp.value = raw;
+  inp.setAttribute('aria-label', 'Edit value');
+  btn.textContent = '';
+  btn.appendChild(inp);
+  inp.focus();
+  inp.select();
 
-// ── CHARTS ────────────────────────────────────────────────────────────────────
-let chartsBuilt=false;
-function initCharts(){
-  if(chartsBuilt)return;chartsBuilt=true;
-  const ac=getComputedStyle(document.documentElement).getPropertyValue('--p1').trim()||'#8B5CF6';
+  const finish = (save) => {
+    if (!btn.classList.contains('editing')) return;
+    if (save) {
+      const v = parseFloat(inp.value.replace(/[^0-9.\-]/g, ''));
+      if (!isNaN(v)) {
+        const { stmt, sec, ri, f } = btn.dataset;
+        const section = DATA[stmt].sections.find(s => s.h === sec);
+        if (section) section.rows[parseInt(ri, 10)][f] = v;
+        markSaved();
+        toast('Value updated — totals recalculated');
+      }
+    }
+    renderStmtTable(DATA[state.curStmt]);
+    editOriginal = null;
+  };
 
-  new Chart(document.getElementById('revChart'),{
-    type:'bar',
-    data:{labels:['Q1','Q2','Q3','Q4'],datasets:[{label:'Revenue ($K)',data:[2400,2900,3200,3900],
-      backgroundColor:[ac+'88',ac+'88',ac+'88',ac],borderRadius:6,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{x:{grid:{display:false},ticks:{color:'rgba(248,246,255,0.4)',font:{size:11}}},
-              y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(248,246,255,0.4)',font:{size:11},callback:v=>'$'+(v/1000).toFixed(1)+'M'}}}}
-  });
-
-  new Chart(document.getElementById('expChart'),{
-    type:'doughnut',
-    data:{labels:['COGS','R&D','S&M','G&A'],
-      datasets:[{data:[32,22,24,14],backgroundColor:['#8B5CF6','#3B82F6','#EC4899','#F59E0B'],
-        borderWidth:0,hoverOffset:6}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
-      plugins:{legend:{position:'right',labels:{color:'rgba(248,246,255,0.55)',font:{size:11},padding:10,boxWidth:10}}}}
-  });
-
-  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  new Chart(document.getElementById('trendChart'),{
-    type:'line',
-    data:{labels:months,datasets:[
-      {label:'Revenue',data:[820,880,940,1020,1080,1120,1180,1240,1300,1380,1480,1980],
-        borderColor:'#8B5CF6',backgroundColor:'rgba(139,92,246,0.12)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#8B5CF6'},
-      {label:'EBITDA',data:[120,130,145,165,180,190,210,230,250,280,320,604],
-        borderColor:'#34D399',backgroundColor:'rgba(52,211,153,0.08)',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:'#34D399',borderDash:[4,2]}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{labels:{color:'rgba(248,246,255,0.55)',font:{size:11},usePointStyle:true,pointStyleWidth:8}}},
-      scales:{x:{grid:{display:false},ticks:{color:'rgba(248,246,255,0.35)',font:{size:10}}},
-              y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'rgba(248,246,255,0.35)',font:{size:10},callback:v=>'$'+v+'K'}}}}
+  inp.addEventListener('blur', () => finish(true));
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      const section = DATA[btn.dataset.stmt]?.sections.find(s => s.h === btn.dataset.sec);
+      if (section && editOriginal !== null) {
+        const v = parseFloat(editOriginal.replace(/[^0-9.\-]/g, ''));
+        if (!isNaN(v)) section.rows[parseInt(btn.dataset.ri, 10)][btn.dataset.f] = v;
+      }
+      btn.classList.remove('editing');
+      editOriginal = null;
+      renderStmtTable(DATA[state.curStmt]);
+    }
   });
 }
 
-// ── TEMPLATES ─────────────────────────────────────────────────────────────────
-let tplBuilt=false;
-function renderTemplates(){
-  if(tplBuilt)return;tplBuilt=true;
-  const grid=document.getElementById('tpl-grid');
-  TEMPLATES.forEach(t=>{
-    const card=document.createElement('div');
-    card.className='tpl-card';
-    card.innerHTML=`
+function setAccent(c1, c2) {
+  document.documentElement.style.setProperty('--p1', c1);
+  document.documentElement.style.setProperty('--p4', c2);
+  document.documentElement.style.setProperty('--p2', c1 + 'CC');
+  $$('[data-accent-group] .color-pill').forEach(pill => {
+    const [a] = (pill.dataset.accent || '').split(',');
+    const on = a === c1;
+    pill.classList.toggle('sel', on);
+    pill.setAttribute('aria-pressed', on);
+  });
+  renderStmtTable(DATA[state.curStmt]);
+}
+
+function updateCompanyMeta() {
+  const name = $('#companyName').value.trim() || 'Acme Corporation';
+  const date = $('#reportDate').value.trim() || 'December 31, 2024';
+  const d = DATA[state.curStmt];
+  const isBalance = state.curStmt === 'balance';
+  const datePhrase = isBalance ? `As of ${date}` : `Fiscal Year Ended ${date}`;
+  d.meta = `${name} · ${datePhrase} · USD ($000s)`;
+  $('#stmt-meta').textContent = d.meta;
+  $('#analytics-meta').textContent = `${name} · FY2024 Performance Overview`;
+  $('#workspacePill').textContent = `${name.split(' ')[0]} Corp · FY2024`;
+  markSaved();
+}
+
+function initCharts() {
+  if (state.chartsBuilt) return;
+  state.chartsBuilt = true;
+  const ac = getComputedStyle(document.documentElement).getPropertyValue('--p1').trim() || '#8B5CF6';
+  const tick = 'rgba(248,246,255,0.4)';
+  const grid = 'rgba(255,255,255,0.04)';
+
+  const chartDefaults = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: 'rgba(248,246,255,0.55)', font: { size: 11 } } } },
+  };
+
+  new Chart($('#revChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+      datasets: [{ label: 'Revenue ($K)', data: [2400, 2900, 3200, 3900],
+        backgroundColor: [ac + '88', ac + '88', ac + '88', ac], borderRadius: 6, borderSkipped: false }],
+    },
+    options: {
+      ...chartDefaults,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tick, font: { size: 11 } } },
+        y: { grid: { color: grid }, ticks: { color: tick, font: { size: 11 }, callback: v => '$' + (v / 1000).toFixed(1) + 'M' } },
+      },
+    },
+  });
+
+  new Chart($('#expChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['COGS', 'R&D', 'S&M', 'G&A'],
+      datasets: [{ data: [32, 22, 24, 14], backgroundColor: ['#8B5CF6', '#3B82F6', '#EC4899', '#F59E0B'], borderWidth: 0, hoverOffset: 6 }],
+    },
+    options: { ...chartDefaults, cutout: '65%', plugins: { legend: { position: 'right', labels: { padding: 10, boxWidth: 10 } } } },
+  });
+
+  new Chart($('#trendChart'), {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      datasets: [
+        { label: 'Revenue', data: [820, 880, 940, 1020, 1080, 1120, 1180, 1240, 1300, 1380, 1480, 1980],
+          borderColor: ac, backgroundColor: ac + '22', fill: true, tension: 0.4, pointRadius: 3 },
+        { label: 'EBITDA', data: [120, 130, 145, 165, 180, 190, 210, 230, 250, 280, 320, 604],
+          borderColor: '#34D399', backgroundColor: 'rgba(52,211,153,0.08)', fill: true, tension: 0.4, pointRadius: 3, borderDash: [4, 2] },
+      ],
+    },
+    options: {
+      ...chartDefaults,
+      plugins: { legend: { labels: { usePointStyle: true, pointStyleWidth: 8 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tick, font: { size: 10 } } },
+        y: { grid: { color: grid }, ticks: { color: tick, font: { size: 10 }, callback: v => '$' + v + 'K' } },
+      },
+    },
+  });
+}
+
+function renderTemplates() {
+  if (state.tplBuilt) return;
+  state.tplBuilt = true;
+  const grid = $('#tpl-grid');
+  TEMPLATES.forEach(t => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'tpl-card';
+    card.setAttribute('role', 'listitem');
+    card.innerHTML = `
       <div class="tpl-preview" style="background:linear-gradient(135deg,${t.c}25,${t.c}08);border-bottom:1px solid var(--border)">
-        ${t.bars.map(h=>`<div style="flex:1;height:${h*10}%;background:${t.c};border-radius:3px 3px 0 0;opacity:.85;transition:height .3s"></div>`).join('')}
+        ${t.bars.map(h => `<div style="flex:1;height:${h * 10}%;background:${t.c};border-radius:3px 3px 0 0;opacity:.85"></div>`).join('')}
       </div>
       <div class="tpl-info">
-        <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
           <div class="tpl-name">${t.name}</div>
-          <div class="tpl-tag">${t.tag}</div>
+          <span class="tpl-tag">${t.tag}</span>
         </div>
-        <div class="tpl-desc">${t.desc}</div>
+        <p class="tpl-desc">${t.desc}</p>
       </div>`;
-    card.onclick=()=>{toast(`✓ Template "${t.name}" applied`);loadStmt('balance')};
+    card.addEventListener('click', () => {
+      toast(`Template "${t.name}" applied`, 'success');
+      loadStmt('balance');
+    });
     grid.appendChild(card);
   });
 }
 
-// ── TOAST ─────────────────────────────────────────────────────────────────────
-let toastTimer;
-function toast(msg){
-  const el=document.getElementById('toastEl');
-  el.textContent=msg;el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+function openSidebar() {
+  $('#sidebar').classList.add('open');
+  $('#sidebarBackdrop').classList.add('visible');
+  $('#menuBtn').setAttribute('aria-expanded', 'true');
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────────
+function closeSidebar() {
+  $('#sidebar').classList.remove('open');
+  $('#sidebarBackdrop').classList.remove('visible');
+  $('#menuBtn').setAttribute('aria-expanded', 'false');
+}
+
+function toggleSettings(open) {
+  const rp = $('#right-panel');
+  const shouldOpen = open ?? !rp.classList.contains('open');
+  rp.classList.toggle('open', shouldOpen);
+  $('#rpToggle').setAttribute('aria-expanded', shouldOpen);
+}
+
+const ACTIONS = {
+  'export-pdf': () => toast('PDF exported successfully', 'success'),
+  'export-excel': () => toast('Excel file downloaded', 'success'),
+  'export-pptx': () => toast('PowerPoint created', 'success'),
+  share: () => toast('Share link copied to clipboard', 'info'),
+  publish: () => toast('Published to investor portal', 'success'),
+  'ai-commentary': () => toast('Executive commentary generated', 'success'),
+};
+
+document.addEventListener('click', e => {
+  const accent = e.target.closest('[data-accent]');
+  if (accent) {
+    const [c1, c2] = accent.dataset.accent.split(',');
+    setAccent(c1, c2);
+    markSaved();
+    return;
+  }
+
+  const actionBtn = e.target.closest('[data-action]');
+  if (actionBtn) {
+    ACTIONS[actionBtn.dataset.action]?.();
+    return;
+  }
+
+  const stmtBtn = e.target.closest('[data-stmt]');
+  if (stmtBtn?.dataset.stmt) {
+    loadStmt(stmtBtn.dataset.stmt);
+    return;
+  }
+
+  const viewBtn = e.target.closest('[data-view]');
+  if (viewBtn?.dataset.view) {
+    switchView(viewBtn.dataset.view);
+    return;
+  }
+
+  const tab = e.target.closest('.tab[data-view]');
+  if (tab) switchView(tab.dataset.view);
+
+  const editable = e.target.closest('.editable');
+  if (editable) startEdit(editable);
+});
+
+$('#menuBtn').addEventListener('click', () => {
+  if ($('#sidebar').classList.contains('open')) closeSidebar();
+  else openSidebar();
+});
+$('#sidebarBackdrop').addEventListener('click', closeSidebar);
+$('#rpToggle').addEventListener('click', () => toggleSettings());
+$('#rpClose').addEventListener('click', () => toggleSettings(false));
+
+$('#lineSearch').addEventListener('input', e => {
+  state.filter = e.target.value;
+  renderStmtTable(DATA[state.curStmt]);
+});
+
+$('#periodSelect').addEventListener('change', e => {
+  markSaved();
+  toast(`Period set to ${e.target.value}`, 'info');
+});
+
+$('#companyName').addEventListener('input', updateCompanyMeta);
+$('#reportDate').addEventListener('input', updateCompanyMeta);
+
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input, textarea, select') && !e.target.classList.contains('cell-inp')) return;
+  if (e.target.classList.contains('cell-inp')) return;
+
+  const map = { '1': 'balance', '2': 'income', '3': 'cashflow', e: 'editor', a: 'analytics', t: 'templates' };
+  const key = e.key.toLowerCase();
+  if (map[key]) {
+    if (STATEMENT_KEYS.includes(map[key])) loadStmt(map[key]);
+    else switchView(map[key]);
+  }
+  if (e.key === 'Escape') {
+    closeSidebar();
+    toggleSettings(false);
+  }
+});
+
+setInterval(tickSaveStatus, 1000);
 loadStmt('balance');
+})();
 </script>
 </body>
 </html>
