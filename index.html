@@ -113,6 +113,9 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff-b);line-height:1
 .editable:focus-visible{background:rgba(139,92,246,.2);border-color:var(--p1)}
 .editable.editing{background:rgba(139,92,246,.25);border-color:var(--p1);border-style:solid}
 .cell-inp{background:transparent;border:none;outline:none;color:var(--txt);font-family:var(--ff-m);font-size:13px;text-align:right;width:100px}
+.cell-inp-name{text-align:left;width:100%;min-width:120px;font-family:var(--ff-b);font-size:13px}
+.editable-name{display:block;text-align:left;max-width:100%;font-family:var(--ff-b);color:var(--txt)}
+.statement td:first-child .editable-name{margin-left:0}
 .empty-search{padding:32px;text-align:center;color:var(--txt3);font-size:13px}
 
 /* ANALYTICS */
@@ -244,30 +247,30 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff-b);line-height:1
     <button type="button" class="sidebar-item" data-view="templates">
       <span class="s-dot" style="background:#F472B6" aria-hidden="true"></span>Templates
     </button>
-    <div class="workspace-pill" id="workspacePill">Acme Corp · FY2024</div>
+    <div class="workspace-pill" id="workspacePill">Acme Corp · FY2026</div>
   </aside>
 
   <!-- EDITOR -->
   <section class="view active" id="view-editor" role="tabpanel" aria-labelledby="tab-editor">
     <header class="editor-head">
       <h1 class="editor-title" id="stmt-title">Balance Sheet</h1>
-      <p class="editor-meta" id="stmt-meta">Acme Corporation · As of December 31, 2024 · USD ($000s)</p>
+      <p class="editor-meta" id="stmt-meta">Acme Corporation · As of December 31, 2026 · USD ($000s)</p>
       <p class="editor-hint">
         <span aria-hidden="true">✎</span>
-        Click any FY 2024 value to edit · Press <kbd>Enter</kbd> to save, <kbd>Esc</kbd> to cancel
+        Click line items or values to edit · Press <kbd>Enter</kbd> to save, <kbd>Esc</kbd> to cancel
       </p>
     </header>
     <div class="editor-controls">
       <div class="ctrl-group">
         <label class="ctrl-label" for="periodSelect">Period</label>
         <select class="ctrl-select" id="periodSelect">
-          <option>FY 2024</option><option>FY 2023</option><option>Q4 2024</option><option>Q3 2024</option>
+          <option>FY 2026</option><option>FY 2025</option><option>Q4 2026</option><option>Q3 2026</option>
         </select>
       </div>
       <div class="ctrl-group">
         <label class="ctrl-label" for="compareSelect">Compare</label>
         <select class="ctrl-select" id="compareSelect">
-          <option>vs Prior Year</option><option>vs Budget</option><option>vs Q3 2024</option>
+          <option>vs Prior Year</option><option>vs Budget</option><option>vs Q3 2026</option>
         </select>
       </div>
       <div class="ctrl-group">
@@ -301,7 +304,7 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff-b);line-height:1
   <section class="view" id="view-analytics" role="tabpanel" aria-labelledby="tab-analytics" hidden>
     <header class="editor-head">
       <h1 class="editor-title">Analytics Dashboard</h1>
-      <p class="editor-meta" id="analytics-meta">Acme Corporation · FY2024 Performance Overview</p>
+      <p class="editor-meta" id="analytics-meta">Acme Corporation · FY2026 Performance Overview</p>
     </header>
     <div class="analytics-body">
       <div class="kpi-row" aria-label="Revenue metrics">
@@ -360,7 +363,7 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff-b);line-height:1
         </div>
         <div class="rp-field">
           <label for="reportDate">Report Date</label>
-          <input class="rp-input" id="reportDate" type="text" value="December 31, 2024">
+          <input class="rp-input" id="reportDate" type="text" value="December 31, 2026">
         </div>
         <div class="rp-field">
           <label for="fiscalYearEnd">Fiscal Year End</label>
@@ -425,11 +428,13 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff-b);line-height:1
 
 const STATEMENT_KEYS = ['balance', 'income', 'cashflow'];
 const VIEW_KEYS = ['editor', 'analytics', 'templates'];
+const FISCAL_YEAR = 2026;
+const PRIOR_YEAR = FISCAL_YEAR - 1;
 
 const DATA = {
   balance: {
     title: 'Balance Sheet',
-    meta: 'Acme Corporation · As of December 31, 2024 · USD ($000s)',
+    meta: 'Acme Corporation · As of December 31, 2026 · USD ($000s)',
     kpis: [
       { l: 'Total Assets', v: '$15,420K', s: '↑ +19.0% YoY', c: '' },
       { l: 'Total Liabilities', v: '$5,840K', s: '↓ -3.2% YoY', c: 'var(--green)' },
@@ -465,7 +470,7 @@ const DATA = {
   },
   income: {
     title: 'Income Statement',
-    meta: 'Acme Corporation · Fiscal Year Ended December 31, 2024 · USD ($000s)',
+    meta: 'Acme Corporation · Fiscal Year Ended December 31, 2026 · USD ($000s)',
     kpis: [
       { l: 'Revenue', v: '$12,420K', s: '↑ +18.2% YoY', c: 'var(--green)' },
       { l: 'Gross Profit', v: '$8,495K', s: '68.4% margin', c: 'var(--green)' },
@@ -503,7 +508,7 @@ const DATA = {
   },
   cashflow: {
     title: 'Cash Flow Statement',
-    meta: 'Acme Corporation · Fiscal Year Ended December 31, 2024 · USD ($000s)',
+    meta: 'Acme Corporation · Fiscal Year Ended December 31, 2026 · USD ($000s)',
     kpis: [
       { l: 'Operating CF', v: '+$2,840K', s: '↑ Strong positive', c: 'var(--green)' },
       { l: 'Investing CF', v: '-$1,920K', s: 'Growth investment', c: 'var(--red)' },
@@ -556,6 +561,7 @@ const state = {
   chartsBuilt: false,
   tplBuilt: false,
   saveSeconds: 0,
+  fiscalYear: FISCAL_YEAR,
 };
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -572,13 +578,42 @@ function pct(c, p) {
   return ((c - p) / Math.abs(p) * 100).toFixed(1);
 }
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function ensureRowKeys() {
+  Object.values(DATA).forEach(stmt => {
+    stmt.sections.forEach(sec => {
+      sec.rows.forEach(row => {
+        if (!row.key) row.key = row.n;
+      });
+    });
+  });
+}
+
 function findRow(stmt, name) {
   const d = typeof stmt === 'string' ? DATA[stmt] : stmt;
   for (const sec of d.sections) {
-    const row = sec.rows.find(r => r.n === name);
+    const row = sec.rows.find(r => r.key === name || r.n === name);
     if (row) return row;
   }
   return null;
+}
+
+function getRow(stmt, secH, ri) {
+  const section = DATA[stmt].sections.find(s => s.h === secH);
+  return section ? section.rows[parseInt(ri, 10)] : null;
+}
+
+function editCell(attrs, content, extraClass = '') {
+  const { stmt, sec, ri, f } = attrs;
+  const label = f === 'n' ? 'line item name' : `FY ${f === 'c' ? state.fiscalYear : PRIOR_YEAR} value`;
+  return `<button type="button" class="editable${extraClass}" data-stmt="${stmt}" data-sec="${sec}" data-ri="${ri}" data-f="${f}" aria-label="Edit ${label}">${content}</button>`;
 }
 
 function sumItemsInRange(rows, start, end, field = 'c') {
@@ -841,8 +876,10 @@ function renderStmtTable(d) {
   const filter = state.filter.trim().toLowerCase();
   let visibleCount = 0;
 
+  const fy = state.fiscalYear;
+  const py = PRIOR_YEAR;
   let html = `<table class="statement"><thead><tr>
-    <th>Line Item</th><th>FY 2024</th><th>FY 2023</th><th>Change</th>
+    <th>Line Item</th><th>FY ${fy}</th><th>FY ${py}</th><th>Change</th>
   </tr></thead><tbody>`;
 
   d.sections.forEach(sec => {
@@ -864,14 +901,26 @@ function renderStmtTable(d) {
         : '';
       const cls = row.tot ? 'r-total' : row.sub ? 'r-sub' : `r-row${hidden}`;
       const indent = row.i && !row.tot && !row.sub ? 'padding-left:28px' : '';
-      const editable = row.i && !row.tot && !row.sub
-        ? `<button type="button" class="editable${negCls}" data-stmt="${state.curStmt}" data-sec="${sec.h}" data-ri="${ri}" data-f="c" aria-label="Edit ${row.n}">${fmt(row.c)}</button>`
+      const attrs = { stmt: state.curStmt, sec: sec.h, ri };
+      const isDetail = row.i && !row.tot && !row.sub;
+      const canRename = isDetail || row.sub || row.tot;
+
+      const nameCell = canRename
+        ? editCell({ ...attrs, f: 'n' }, escapeHtml(row.n), ' editable-name')
+        : escapeHtml(row.n);
+
+      const curCell = isDetail
+        ? editCell({ ...attrs, f: 'c' }, fmt(row.c), negCls)
         : `<span class="${negCls.trim()}">${fmt(row.c)}</span>`;
 
+      const priorCell = isDetail
+        ? editCell({ ...attrs, f: 'p' }, fmt(row.p), negCls)
+        : `<span class="${negCls.trim()}">${fmt(row.p)}</span>`;
+
       html += `<tr class="${cls}" data-line="${row.n.toLowerCase()}">
-        <td style="${indent}">${row.n}</td>
-        <td>${editable}</td>
-        <td class="${negCls.trim()}">${fmt(row.p)}</td>
+        <td style="${indent}">${nameCell}</td>
+        <td>${curCell}</td>
+        <td>${priorCell}</td>
         <td>${badge}</td>
       </tr>`;
     });
@@ -926,50 +975,73 @@ let editOriginal = null;
 
 function startEdit(btn) {
   if (btn.classList.contains('editing')) return;
+  const field = btn.dataset.f;
+  const isName = field === 'n';
   editOriginal = btn.textContent;
   btn.classList.add('editing');
-  const raw = btn.textContent.replace(/[$,\-]/g, '');
+  btn.textContent = '';
+
   const inp = document.createElement('input');
   inp.type = 'text';
-  inp.className = 'cell-inp';
-  inp.value = raw;
-  inp.setAttribute('aria-label', 'Edit value');
-  btn.textContent = '';
+  inp.className = isName ? 'cell-inp cell-inp-name' : 'cell-inp';
+  inp.value = isName ? editOriginal : editOriginal.replace(/[$,\-]/g, '');
+  inp.setAttribute('aria-label', isName ? 'Edit line item name' : 'Edit amount');
   btn.appendChild(inp);
   inp.focus();
   inp.select();
 
-  const finish = (save) => {
+  const cancel = () => {
     if (!btn.classList.contains('editing')) return;
-    if (save) {
-      const v = parseFloat(inp.value.replace(/[^0-9.\-]/g, ''));
-      if (!isNaN(v)) {
-        const { stmt, sec, ri, f } = btn.dataset;
-        const section = DATA[stmt].sections.find(s => s.h === sec);
-        if (section) section.rows[parseInt(ri, 10)][f] = v;
-        recalculateStatement(stmt);
-        markSaved();
-        toast('Value updated — totals recalculated');
+    const row = getRow(btn.dataset.stmt, btn.dataset.sec, btn.dataset.ri);
+    if (row && editOriginal !== null) {
+      if (isName) row.n = editOriginal;
+      else {
+        const v = parseFloat(editOriginal.replace(/[^0-9.\-]/g, ''));
+        if (!isNaN(v)) row[field] = v;
       }
     }
-    refreshEditor();
+    btn.classList.remove('editing');
     editOriginal = null;
+    refreshEditor();
   };
 
-  inp.addEventListener('blur', () => finish(true));
+  const save = () => {
+    if (!btn.classList.contains('editing')) return;
+    const { stmt, sec, ri } = btn.dataset;
+    const row = getRow(stmt, sec, ri);
+    let changed = false;
+
+    if (row) {
+      if (isName) {
+        const name = inp.value.trim();
+        if (name && name !== row.n) {
+          row.n = name;
+          changed = true;
+        }
+      } else {
+        const v = parseFloat(inp.value.replace(/[^0-9.\-]/g, ''));
+        if (!isNaN(v) && v !== row[field]) {
+          row[field] = v;
+          changed = true;
+        }
+      }
+    }
+
+    if (changed) {
+      if (!isName) recalculateStatement(stmt);
+      markSaved();
+      toast(isName ? 'Line item renamed' : 'Value updated — totals recalculated');
+    }
+
+    btn.classList.remove('editing');
+    editOriginal = null;
+    refreshEditor();
+  };
+
+  inp.addEventListener('blur', save);
   inp.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      const section = DATA[btn.dataset.stmt]?.sections.find(s => s.h === btn.dataset.sec);
-      if (section && editOriginal !== null) {
-        const v = parseFloat(editOriginal.replace(/[^0-9.\-]/g, ''));
-        if (!isNaN(v)) section.rows[parseInt(btn.dataset.ri, 10)][btn.dataset.f] = v;
-      }
-      btn.classList.remove('editing');
-      editOriginal = null;
-      refreshEditor();
-    }
+    if (e.key === 'Escape') { e.preventDefault(); inp.removeEventListener('blur', save); cancel(); }
   });
 }
 
@@ -988,14 +1060,14 @@ function setAccent(c1, c2) {
 
 function updateCompanyMeta() {
   const name = $('#companyName').value.trim() || 'Acme Corporation';
-  const date = $('#reportDate').value.trim() || 'December 31, 2024';
+  const date = $('#reportDate').value.trim() || `December 31, ${state.fiscalYear}`;
   const d = DATA[state.curStmt];
   const isBalance = state.curStmt === 'balance';
   const datePhrase = isBalance ? `As of ${date}` : `Fiscal Year Ended ${date}`;
   d.meta = `${name} · ${datePhrase} · USD ($000s)`;
   $('#stmt-meta').textContent = d.meta;
-  $('#analytics-meta').textContent = `${name} · FY2024 Performance Overview`;
-  $('#workspacePill').textContent = `${name.split(' ')[0]} Corp · FY2024`;
+  $('#analytics-meta').textContent = `${name} · FY${state.fiscalYear} Performance Overview`;
+  $('#workspacePill').textContent = `${name.split(' ')[0]} Corp · FY${state.fiscalYear}`;
   markSaved();
 }
 
@@ -1188,6 +1260,7 @@ document.addEventListener('keydown', e => {
 });
 
 setInterval(tickSaveStatus, 1000);
+ensureRowKeys();
 recalculateStatement('balance');
 recalculateStatement('income');
 recalculateStatement('cashflow');
