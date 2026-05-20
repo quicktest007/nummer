@@ -108,14 +108,44 @@ body{background:var(--bg);color:var(--txt);font-family:var(--ff-b);line-height:1
 .badge{font-size:10px;padding:2px 7px;border-radius:5px;margin-left:5px;white-space:nowrap}
 .badge-pos{background:rgba(52,211,153,.12);color:var(--green)}
 .badge-neg{background:rgba(248,113,113,.12);color:var(--red)}
-.editable{cursor:pointer;border-radius:5px;padding:3px 6px;transition:background .15s,box-shadow .15s;display:inline-block;border:1px dashed transparent}
-.editable:hover{background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.3)}
-.editable:focus-visible{background:rgba(139,92,246,.2);border-color:var(--p1)}
-.editable.editing{background:rgba(139,92,246,.25);border-color:var(--p1);border-style:solid}
-.cell-inp{background:transparent;border:none;outline:none;color:var(--txt);font-family:var(--ff-m);font-size:13px;text-align:right;width:100px}
-.cell-inp-name{text-align:left;width:100%;min-width:120px;font-family:var(--ff-b);font-size:13px}
-.editable-name{display:block;text-align:left;max-width:100%;font-family:var(--ff-b);color:var(--txt)}
-.statement td:first-child .editable-name{margin-left:0}
+.statement .editable{
+  appearance:none;-webkit-appearance:none;
+  background:transparent;
+  border:1px dashed rgba(139,92,246,.25);
+  border-radius:5px;
+  padding:2px 6px;
+  margin:0;
+  cursor:text;
+  color:inherit;
+  font:inherit;
+  line-height:1.4;
+  text-align:inherit;
+  min-width:0;
+  max-width:100%;
+  transition:background .15s,border-color .15s;
+}
+.statement .editable:hover{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.45)}
+.statement .editable:focus-visible{outline:2px solid var(--p1);outline-offset:1px;background:rgba(139,92,246,.15)}
+.statement .editable.editing{background:rgba(139,92,246,.2);border-color:var(--p1);border-style:solid;padding:0}
+.statement td:first-child .editable{text-align:left;color:var(--txt);font-family:var(--ff-b);display:inline-block;min-width:8em}
+.statement td:not(:first-child) .editable{font-family:var(--ff-m);color:var(--txt2);display:inline-block;min-width:5em}
+.statement .editable.neg{color:var(--red)!important}
+.cell-inp{
+  background:var(--bg3);
+  border:1px solid var(--p1);
+  border-radius:4px;
+  outline:none;
+  color:var(--txt);
+  font-family:var(--ff-m);
+  font-size:13px;
+  text-align:right;
+  width:100%;
+  min-width:80px;
+  padding:4px 8px;
+  box-sizing:border-box;
+}
+.cell-inp-name{text-align:left;font-family:var(--ff-b);min-width:140px}
+.statement td:first-child .cell-inp-name{text-align:left}
 .empty-search{padding:32px;text-align:center;color:var(--txt3);font-size:13px}
 
 /* ANALYTICS */
@@ -605,15 +635,16 @@ function findRow(stmt, name) {
   return null;
 }
 
-function getRow(stmt, secH, ri) {
-  const section = DATA[stmt].sections.find(s => s.h === secH);
-  return section ? section.rows[parseInt(ri, 10)] : null;
+function getRowFromEl(el) {
+  const stmt = el.dataset.editStmt;
+  const section = DATA[stmt]?.sections.find(s => s.h === el.dataset.sec);
+  return section ? section.rows[parseInt(el.dataset.ri, 10)] : null;
 }
 
 function editCell(attrs, content, extraClass = '') {
   const { stmt, sec, ri, f } = attrs;
   const label = f === 'n' ? 'line item name' : `FY ${f === 'c' ? state.fiscalYear : PRIOR_YEAR} value`;
-  return `<button type="button" class="editable${extraClass}" data-stmt="${stmt}" data-sec="${sec}" data-ri="${ri}" data-f="${f}" aria-label="Edit ${label}">${content}</button>`;
+  return `<span class="editable${extraClass}" tabindex="0" role="button" data-edit-stmt="${stmt}" data-sec="${sec}" data-ri="${ri}" data-f="${f}" aria-label="Edit ${label}">${content}</span>`;
 }
 
 function sumItemsInRange(rows, start, end, field = 'c') {
@@ -973,42 +1004,38 @@ function switchView(view) {
 
 let editOriginal = null;
 
-function startEdit(btn) {
-  if (btn.classList.contains('editing')) return;
-  const field = btn.dataset.f;
+function startEdit(cell) {
+  if (cell.classList.contains('editing')) return;
+  const field = cell.dataset.f;
   const isName = field === 'n';
-  editOriginal = btn.textContent;
-  btn.classList.add('editing');
-  btn.textContent = '';
+  const stmt = cell.dataset.editStmt;
+  editOriginal = cell.textContent;
+  cell.classList.add('editing');
+  cell.textContent = '';
 
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.className = isName ? 'cell-inp cell-inp-name' : 'cell-inp';
   inp.value = isName ? editOriginal : editOriginal.replace(/[$,\-]/g, '');
   inp.setAttribute('aria-label', isName ? 'Edit line item name' : 'Edit amount');
-  btn.appendChild(inp);
-  inp.focus();
-  inp.select();
+  cell.appendChild(inp);
+
+  requestAnimationFrame(() => {
+    inp.focus();
+    inp.select();
+  });
 
   const cancel = () => {
-    if (!btn.classList.contains('editing')) return;
-    const row = getRow(btn.dataset.stmt, btn.dataset.sec, btn.dataset.ri);
-    if (row && editOriginal !== null) {
-      if (isName) row.n = editOriginal;
-      else {
-        const v = parseFloat(editOriginal.replace(/[^0-9.\-]/g, ''));
-        if (!isNaN(v)) row[field] = v;
-      }
-    }
-    btn.classList.remove('editing');
+    if (!cell.classList.contains('editing')) return;
+    inp.removeEventListener('blur', save);
+    cell.classList.remove('editing');
     editOriginal = null;
     refreshEditor();
   };
 
   const save = () => {
-    if (!btn.classList.contains('editing')) return;
-    const { stmt, sec, ri } = btn.dataset;
-    const row = getRow(stmt, sec, ri);
+    if (!cell.classList.contains('editing')) return;
+    const row = getRowFromEl(cell);
     let changed = false;
 
     if (row) {
@@ -1027,21 +1054,22 @@ function startEdit(btn) {
       }
     }
 
+    inp.removeEventListener('blur', save);
+    cell.classList.remove('editing');
+    editOriginal = null;
+
     if (changed) {
       if (!isName) recalculateStatement(stmt);
       markSaved();
       toast(isName ? 'Line item renamed' : 'Value updated — totals recalculated');
     }
-
-    btn.classList.remove('editing');
-    editOriginal = null;
     refreshEditor();
   };
 
   inp.addEventListener('blur', save);
   inp.addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
-    if (e.key === 'Escape') { e.preventDefault(); inp.removeEventListener('blur', save); cancel(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
   });
 }
 
@@ -1189,6 +1217,12 @@ const ACTIONS = {
 };
 
 document.addEventListener('click', e => {
+  const editable = e.target.closest('.editable');
+  if (editable && !editable.classList.contains('editing')) {
+    startEdit(editable);
+    return;
+  }
+
   const accent = e.target.closest('[data-accent]');
   if (accent) {
     const [c1, c2] = accent.dataset.accent.split(',');
@@ -1203,7 +1237,7 @@ document.addEventListener('click', e => {
     return;
   }
 
-  const stmtBtn = e.target.closest('[data-stmt]');
+  const stmtBtn = e.target.closest('.sidebar-item[data-stmt]');
   if (stmtBtn?.dataset.stmt) {
     loadStmt(stmtBtn.dataset.stmt);
     return;
@@ -1217,9 +1251,16 @@ document.addEventListener('click', e => {
 
   const tab = e.target.closest('.tab[data-view]');
   if (tab) switchView(tab.dataset.view);
+});
 
-  const editable = e.target.closest('.editable');
-  if (editable) startEdit(editable);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    const editable = e.target.closest('.editable');
+    if (editable && !editable.classList.contains('editing')) {
+      e.preventDefault();
+      startEdit(editable);
+    }
+  }
 });
 
 $('#menuBtn').addEventListener('click', () => {
@@ -1246,6 +1287,7 @@ $('#reportDate').addEventListener('input', updateCompanyMeta);
 document.addEventListener('keydown', e => {
   if (e.target.matches('input, textarea, select') && !e.target.classList.contains('cell-inp')) return;
   if (e.target.classList.contains('cell-inp')) return;
+  if (e.target.closest('.editable')) return;
 
   const map = { '1': 'balance', '2': 'income', '3': 'cashflow', e: 'editor', a: 'analytics', t: 'templates' };
   const key = e.key.toLowerCase();
