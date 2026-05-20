@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nummer — Pro Forma Builder</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="description" content="Pro forma builder — enter revenue and costs in full dollars, calculate, then view statements, analytics, and scenarios">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -50,6 +52,52 @@ body{color:var(--txt);font-family:var(--ff-b);font-size:14px}
 .btn-ghost:hover{color:var(--txt);border-color:var(--border3);background:var(--glass2)}
 .btn-primary{padding:7px 16px;border-radius:20px;font-size:12px;font-family:var(--ff-b);font-weight:600;cursor:pointer;border:none;background:linear-gradient(135deg,var(--p4),var(--p1));color:#fff;transition:var(--tr);box-shadow:0 0 16px rgba(139,92,246,.35)}
 .btn-primary:hover{box-shadow:0 0 28px rgba(139,92,246,.55);transform:translateY(-1px)}
+
+/* PAGES */
+.page{display:none;flex:1;flex-direction:column;overflow:hidden;position:relative;z-index:1}
+.page.active{display:flex}
+.step-nav{display:flex;align-items:center;gap:6px}
+.step{padding:5px 12px;border-radius:20px;font-size:12px;color:var(--txt4);border:1px solid transparent}
+.step.active{color:var(--txt);background:var(--glass2);border-color:var(--border2)}
+.step.done{color:var(--p2)}
+.step-arrow{color:var(--txt4);font-size:11px}
+.btn-lg{padding:12px 28px;font-size:14px;border-radius:24px}
+
+/* INPUTS PAGE */
+.inputs-page{flex:1;overflow-y:auto;padding:24px 28px 32px}
+.inputs-setup{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:20px;padding:14px 16px;background:var(--glass);border:1px solid var(--border);border-radius:var(--radius)}
+.setup-field{display:flex;flex-direction:column;gap:5px}
+.setup-field label{font-size:10px;font-family:var(--ff-m);color:var(--txt4);text-transform:uppercase;letter-spacing:.08em}
+.setup-inp{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--txt);font-size:13px;padding:8px 11px;font-family:var(--ff-b);outline:none;min-width:140px}
+.setup-inp:focus{border-color:rgba(139,92,246,.5)}
+.input-sec{margin-bottom:18px}
+.input-sec-title{font-size:10px;font-family:var(--ff-m);color:var(--p2);text-transform:uppercase;letter-spacing:.12em;padding:8px 12px;background:rgba(139,92,246,.08);border-radius:var(--radius-sm);margin-bottom:8px;border:1px solid rgba(139,92,246,.15)}
+.inp-table-wrap{border:1px solid var(--border);border-radius:var(--radius);overflow:auto}
+.inp-table{width:100%;border-collapse:collapse;font-size:13px}
+.inp-table th{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--txt4);padding:10px 12px;text-align:right;background:rgba(255,255,255,.02);font-family:var(--ff-m)}
+.inp-table th:first-child{text-align:left}
+.inp-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04)}
+.inp-table td:not(:first-child){text-align:right}
+.inp-table input{width:100%;min-width:100px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;color:var(--txt);font-family:var(--ff-m);font-size:13px;padding:7px 9px;text-align:right;outline:none}
+.inp-table input:focus{border-color:rgba(139,92,246,.5);background:rgba(139,92,246,.08)}
+.pct-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.inputs-footer{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+.inputs-hint{font-size:12px;color:var(--txt4)}
+
+/* RESULTS PAGE */
+.results-layout{display:flex;flex:1;overflow:hidden}
+.scenarios-rail{width:248px;background:rgba(19,8,48,.9);border-left:1px solid var(--border);padding:14px 12px;overflow-y:auto;flex-shrink:0}
+.scenarios-rail-title{font-family:var(--ff-d);font-size:13px;font-weight:700;margin-bottom:12px}
+.sc-card{width:100%;text-align:left;padding:11px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--glass);color:var(--txt3);font-family:var(--ff-b);font-size:12px;cursor:pointer;margin-bottom:8px;transition:var(--tr)}
+.sc-card:hover{border-color:var(--border2);color:var(--txt2)}
+.sc-card.on{border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.12);color:var(--txt)}
+.sc-card strong{display:block;color:var(--txt);font-size:13px;margin-bottom:2px}
+.sc-slider{margin-top:14px;padding:12px;background:var(--glass);border:1px solid var(--border);border-radius:var(--radius-sm)}
+.sc-slider label{font-size:11px;color:var(--txt3);display:block;margin-bottom:8px}
+.sc-slider input[type=range]{width:100%;accent-color:var(--p1)}
+.pf-tabs{display:flex;gap:4px;padding:12px 20px 0;border-bottom:1px solid var(--border);flex-shrink:0}
+.pf-tab{padding:8px 14px;border-radius:8px 8px 0 0;font-size:13px;cursor:pointer;color:var(--txt3);border:1px solid transparent;background:none;font-family:var(--ff-b)}
+.pf-tab.on{background:var(--glass2);color:var(--txt);border-color:var(--border2)}
 
 /* MAIN */
 .main{display:flex;flex:1;overflow:hidden;position:relative;z-index:1}
@@ -165,136 +213,93 @@ tr.t-tot td:not(:first-child){text-align:right;font-family:var(--ff-m)}
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <a class="logo" href="#">
+  <a class="logo" href="#" onclick="showPage('inputs');return false">
     <div class="logo-icon">N</div>
     <span class="logo-name">Nummer</span>
   </a>
   <div class="divider-v"></div>
-  <div class="nav-tabs">
-    <button class="nav-tab on" onclick="showView('inputs')">Inputs</button>
-    <button class="nav-tab" onclick="showView('proforma')">Pro Forma</button>
-    <button class="nav-tab" onclick="showView('analytics')">Analytics</button>
-    <button class="nav-tab" onclick="showView('compare')">Compare</button>
+  <div class="step-nav" id="step-nav">
+    <span class="step active" id="step-1">1 · Assumptions</span>
+    <span class="step-arrow">→</span>
+    <span class="step" id="step-2">2 · Pro Forma & Analytics</span>
   </div>
   <div class="topbar-right">
-    <div class="save-pill"><div class="pulse"></div>Auto-saved</div>
-    <button class="btn-ghost" onclick="exportPDF()">Export PDF</button>
-    <button class="btn-ghost" onclick="toast('Share link copied!')">Share</button>
-    <button class="btn-primary" onclick="toast('✓ Published to investor portal')">Publish</button>
+    <button class="btn-ghost" id="btn-back" style="display:none" onclick="showPage('inputs')">← Edit assumptions</button>
+    <button class="btn-ghost" id="btn-export" style="display:none" onclick="exportPDF()">Export PDF</button>
   </div>
 </div>
 
-<!-- MAIN -->
-<div class="main">
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="sb-label">Statements</div>
-  <div class="sb-item on" id="sb-view-inputs" onclick="showView('inputs')">
-    <div class="sb-dot" style="background:var(--p1)"></div>Assumptions
+<!-- PAGE 1: INPUTS -->
+<div class="page active" id="page-inputs">
+  <div class="inputs-page">
+    <div class="view-head" style="padding:0 0 16px">
+      <div class="view-title">Financial assumptions</div>
+      <div class="view-meta">Enter revenue and costs in full dollars for each forecast year, then calculate your pro forma.</div>
+    </div>
+    <div class="inputs-setup">
+      <div class="setup-field"><label>Company name</label><input class="setup-inp" type="text" id="company" value="Acme Corporation"></div>
+      <div class="setup-field"><label>First forecast year</label><input class="setup-inp" type="number" id="startYear" value="2026" min="2000" max="2100"></div>
+      <div class="setup-field"><label>Forecast years</label>
+        <select class="setup-inp" id="numYears" onchange="rebuildInputGrid()">
+          <option value="3">3 years</option>
+          <option value="4">4 years</option>
+          <option value="5" selected>5 years</option>
+        </select>
+      </div>
+    </div>
+    <div class="input-sec">
+      <div class="input-sec-title">Income statement — annual amounts ($)</div>
+      <div class="inp-table-wrap"><table class="inp-table" id="inp-grid"></table></div>
+    </div>
+    <div class="input-sec">
+      <div class="input-sec-title">Balance sheet & cash flow drivers</div>
+      <div class="pct-grid">
+        <div class="g-card">
+          <div class="field"><label class="f-label">Starting cash (year 1)</label><div class="f-row"><span class="f-pre">$</span><input class="f-inp wide" type="number" id="cash0" value="3500000"></div></div>
+          <div class="field"><label class="f-label">Starting debt (year 1)</label><div class="f-row"><span class="f-pre">$</span><input class="f-inp wide" type="number" id="debt0" value="2000000"></div></div>
+          <div class="field"><label class="f-label">Annual debt repayment</label><div class="f-row"><span class="f-pre">$</span><input class="f-inp wide" type="number" id="debtpay" value="400000"></div></div>
+        </div>
+        <div class="g-card">
+          <div class="field"><label class="f-label">Capex % of revenue</label><div class="f-row"><input class="f-inp" type="number" id="capex" value="8"><span class="f-unit">%</span></div></div>
+          <div class="field"><label class="f-label">D&A % of revenue</label><div class="f-row"><input class="f-inp" type="number" id="da" value="4"><span class="f-unit">%</span></div></div>
+          <div class="field"><label class="f-label">Effective tax rate</label><div class="f-row"><input class="f-inp" type="number" id="tax" value="21"><span class="f-unit">%</span></div></div>
+        </div>
+        <div class="g-card">
+          <div class="field"><label class="f-label">Interest rate on debt</label><div class="f-row"><input class="f-inp" type="number" id="intrate" value="6"><span class="f-unit">%</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="inputs-footer">
+      <span class="inputs-hint">All amounts in U.S. dollars · no abbreviations</span>
+      <button class="btn-primary btn-lg" onclick="runCalculate()">Calculate pro forma →</button>
+    </div>
   </div>
-  <div class="sb-item" id="sb-view-proforma" onclick="showView('proforma')">
+</div>
+
+<!-- PAGE 2: RESULTS -->
+<div class="page" id="page-results">
+<div class="results-layout">
+<div class="sidebar">
+  <div class="sb-label">Output</div>
+  <div class="sb-item on" id="sb-view-proforma" onclick="showView('proforma')">
     <div class="sb-dot" style="background:var(--blue)"></div>Pro Forma
   </div>
   <div class="sb-item" id="sb-view-analytics" onclick="showView('analytics')">
     <div class="sb-dot" style="background:var(--green)"></div>Analytics
   </div>
-  <div class="sb-label">Scenarios</div>
-  <div class="sb-item on" id="sb-sc0" onclick="switchScenario(0)">
-    <div class="sb-dot" style="background:var(--p1)"></div>Base Case
-  </div>
-  <div class="sb-item" id="sb-sc1" onclick="switchScenario(1)">
-    <div class="sb-dot" style="background:var(--green)"></div>Upside
-  </div>
-  <div class="sb-item" id="sb-sc2" onclick="switchScenario(2)">
-    <div class="sb-dot" style="background:var(--red)"></div>Downside
-  </div>
-  <div class="sb-label">Analysis</div>
-  <div class="sb-item" id="sb-view-compare" onclick="showView('compare')">
-    <div class="sb-dot" style="background:var(--p2)"></div>Scenario Compare
-  </div>
   <div class="sb-spacer"></div>
-  <div class="sb-footer">
+  <div class="sb-footer" id="sb-footer-meta">
     <div style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
-    Acme Corp · FY2024–28
+    <span id="footer-label">—</span>
   </div>
 </div>
 
-<!-- CONTENT -->
 <div class="content">
-<div class="sc-bar">
-  <span class="sc-label">Scenario</span>
-  <button class="sc-btn on" id="scb0" onclick="switchScenario(0)"><span class="sc-dot" style="background:var(--p1)"></span>Base Case</button>
-  <button class="sc-btn" id="scb1" onclick="switchScenario(1)"><span class="sc-dot" style="background:var(--green)"></span>Upside</button>
-  <button class="sc-btn" id="scb2" onclick="switchScenario(2)"><span class="sc-dot" style="background:var(--red)"></span>Downside</button>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
-    <span class="sc-status" id="sc-status">Ready</span>
-    <button class="btn-ghost" style="padding:5px 12px;font-size:11px" onclick="recalc();flashStatus()">Recalculate</button>
-  </div>
-</div>
-
-<!-- INPUTS VIEW -->
-<div class="view on" id="view-inputs">
-  <div class="view-head">
-    <div class="view-title">Model Assumptions</div>
-    <div class="view-meta">Edit any field — the model updates instantly across all outputs</div>
-  </div>
-  <div class="view-body">
-    <div class="kpi-row" id="kpi-inputs"></div>
-    <div class="input-grid">
-      <div class="g-card">
-        <div class="card-head">
-          <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-          Revenue assumptions
-        </div>
-        <div class="field"><label class="f-label">Year 1 base revenue</label><div class="f-row"><span class="f-pre">$</span><input class="f-inp wide" type="number" id="rev0" value="2000" oninput="recalc()"><span class="f-unit">K</span></div></div>
-        <div class="field"><label class="f-label">Yr 1 → 2 growth</label><div class="f-row"><input class="f-inp" type="number" id="g1" value="30" oninput="recalc()"><span class="f-unit">%</span></div></div>
-        <div class="field"><label class="f-label">Yr 2 → 3 growth</label><div class="f-row"><input class="f-inp" type="number" id="g2" value="25" oninput="recalc()"><span class="f-unit">%</span></div></div>
-        <div class="field"><label class="f-label">Yr 3 → 4 growth</label><div class="f-row"><input class="f-inp" type="number" id="g3" value="20" oninput="recalc()"><span class="f-unit">%</span></div></div>
-        <div class="field"><label class="f-label">Yr 4 → 5 growth</label><div class="f-row"><input class="f-inp" type="number" id="g4" value="18" oninput="recalc()"><span class="f-unit">%</span></div></div>
-      </div>
-      <div class="g-card">
-        <div class="card-head">
-          <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
-          Margin assumptions
-        </div>
-        <div class="field"><label class="f-label">Gross margin</label><div class="f-row"><input class="f-inp" type="number" id="gm" value="68" oninput="recalc()"><span class="f-unit">%</span></div></div>
-        <div class="field"><label class="f-label">R&D % of revenue</label><div class="f-row"><input class="f-inp" type="number" id="rd" value="22" oninput="recalc()"><span class="f-unit">%</span></div></div>
-        <div class="field"><label class="f-label">Sales & marketing %</label><div class="f-row"><input class="f-inp" type="number" id="sm" value="24" oninput="recalc()"><span class="f-unit">%</span></div></div>
-        <div class="field"><label class="f-label">G&A % of revenue</label><div class="f-row"><input class="f-inp" type="number" id="ga" value="14" oninput="recalc()"><span class="f-unit">%</span></div></div>
-        <div class="field"><label class="f-label">Effective tax rate</label><div class="f-row"><input class="f-inp" type="number" id="tax" value="21" oninput="recalc()"><span class="f-unit">%</span></div></div>
-      </div>
-      <div class="g-card">
-        <div class="card-head">
-          <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          Balance sheet
-        </div>
-        <div class="field"><label class="f-label">Starting cash (Yr 1)</label><div class="f-row"><span class="f-pre">$</span><input class="f-inp wide" type="number" id="cash0" value="3500" oninput="recalc()"><span class="f-unit">K</span></div></div>
-        <div class="field"><label class="f-label">Starting debt (Yr 1)</label><div class="f-row"><span class="f-pre">$</span><input class="f-inp wide" type="number" id="debt0" value="2000" oninput="recalc()"><span class="f-unit">K</span></div></div>
-        <div class="field"><label class="f-label">Annual debt repayment</label><div class="f-row"><span class="f-pre">$</span><input class="f-inp wide" type="number" id="debtpay" value="400" oninput="recalc()"><span class="f-unit">K/yr</span></div></div>
-        <div class="field"><label class="f-label">Capex % of revenue</label><div class="f-row"><input class="f-inp" type="number" id="capex" value="8" oninput="recalc()"><span class="f-unit">%</span></div></div>
-        <div class="field"><label class="f-label">D&A % of revenue</label><div class="f-row"><input class="f-inp" type="number" id="da" value="4" oninput="recalc()"><span class="f-unit">%</span></div></div>
-      </div>
-      <div class="g-card">
-        <div class="card-head">
-          <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
-          Working capital & ops
-        </div>
-        <div class="field"><label class="f-label">Days sales outstanding</label><div class="f-row"><input class="f-inp" type="number" id="dso" value="45" oninput="recalc()"><span class="f-unit">days</span></div></div>
-        <div class="field"><label class="f-label">Days payable outstanding</label><div class="f-row"><input class="f-inp" type="number" id="dpo" value="30" oninput="recalc()"><span class="f-unit">days</span></div></div>
-        <div class="field"><label class="f-label">Interest rate on debt</label><div class="f-row"><input class="f-inp" type="number" id="intrate" value="6" oninput="recalc()"><span class="f-unit">%</span></div></div>
-        <div class="field"><label class="f-label">Headcount (Yr 1)</label><div class="f-row"><input class="f-inp" type="number" id="hc" value="25" oninput="recalc()"><span class="f-unit">FTEs</span></div></div>
-        <div class="field"><label class="f-label">Avg. annual salary</label><div class="f-row"><span class="f-pre">$</span><input class="f-inp wide" type="number" id="sal" value="120" oninput="recalc()"><span class="f-unit">K</span></div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- PROFORMA VIEW -->
-<div class="view" id="view-proforma">
+<div class="view on" id="view-proforma">
   <div class="view-head">
-    <div class="view-title">5-Year Pro Forma</div>
-    <div class="view-meta">Full income statement, cash flow, and balance sheet — driven by your assumptions</div>
+    <div class="view-title">Pro Forma</div>
+    <div class="view-meta" id="pf-meta">Income statement · cash flow · balance sheet</div>
   </div>
   <div class="view-body">
     <div class="kpi-row" id="kpi-pf"></div>
@@ -306,13 +311,13 @@ tr.t-tot td:not(:first-child){text-align:right;font-family:var(--ff-m)}
 <div class="view" id="view-analytics">
   <div class="view-head">
     <div class="view-title">Analytics</div>
-    <div class="view-meta">Full 5-year visual breakdown — revenue, margins, cash flow, opex, and key ratios</div>
+    <div class="view-meta">Visual breakdown — revenue, margins, cash flow, opex, and key ratios</div>
   </div>
   <div class="view-body">
     <div class="kpi-row" id="kpi-an"></div>
     <div class="chart-grid">
       <div class="g-card">
-        <div class="card-head"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="17" y="5" width="4" height="16"/></svg>Revenue vs. gross profit ($K)</div>
+        <div class="card-head"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="17" y="5" width="4" height="16"/></svg>Revenue vs. gross profit</div>
         <div class="chart-legend"><div class="leg"><div class="leg-sq" style="background:#8B5CF6"></div>Revenue</div><div class="leg"><div class="leg-sq" style="background:#6B2FD4;opacity:.6"></div>Gross profit</div></div>
         <div style="position:relative;height:190px"><canvas id="an-rev" role="img" aria-label="Revenue and gross profit by year">Revenue and gross profit projections</canvas></div>
       </div>
@@ -324,18 +329,18 @@ tr.t-tot td:not(:first-child){text-align:right;font-family:var(--ff-m)}
     </div>
     <div class="chart-grid">
       <div class="g-card">
-        <div class="card-head"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>EBITDA bridge — Yr 1 vs Yr 5 ($K)</div>
+        <div class="card-head"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>EBITDA bridge</div>
         <div style="position:relative;height:190px"><canvas id="an-bridge" role="img" aria-label="EBITDA bridge stacked bar chart">EBITDA components bridge</canvas></div>
       </div>
       <div class="g-card">
-        <div class="card-head"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>Cash flow profile ($K)</div>
+        <div class="card-head"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>Cash flow profile</div>
         <div class="chart-legend"><div class="leg"><div class="leg-sq" style="background:#8B5CF6"></div>Operating CF</div><div class="leg"><div class="leg-sq" style="background:#34D399"></div>Free CF</div><div class="leg"><div class="leg-sq" style="background:#FBBF24"></div>Ending cash</div></div>
         <div style="position:relative;height:190px"><canvas id="an-cf" role="img" aria-label="Cash flow profile over 5 years">Operating free cash flow and ending cash</canvas></div>
       </div>
     </div>
     <div class="chart-grid">
       <div class="g-card">
-        <div class="card-head"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Opex breakdown — Yr 5 (% of revenue)</div>
+        <div class="card-head"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>Opex breakdown — final year (% of revenue)</div>
         <div style="position:relative;height:190px"><canvas id="an-opex" role="img" aria-label="Year 5 operating expense breakdown donut chart">Opex breakdown by category</canvas></div>
       </div>
       <div class="g-card">
@@ -344,77 +349,140 @@ tr.t-tot td:not(:first-child){text-align:right;font-family:var(--ff-m)}
       </div>
     </div>
     <div style="margin-top:4px">
-      <div class="card-head" style="margin-bottom:12px"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Key financial ratios — Year 5</div>
+      <div class="card-head" style="margin-bottom:12px"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>Key financial ratios — final year</div>
       <div id="ratio-row" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px"></div>
     </div>
   </div>
 </div>
 
-<!-- COMPARE VIEW -->
-<div class="view" id="view-compare">
-  <div class="view-head">
-    <div class="view-title">Scenario Comparison</div>
-    <div class="view-meta">Year 5 results across Base Case, Upside, and Downside scenarios</div>
-  </div>
-  <div class="view-body">
-    <div class="cmp-grid" id="cmp-grid"></div>
-    <div class="g-card">
-      <div class="card-head"><svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="17" y="5" width="4" height="16"/></svg>Revenue projection — all scenarios ($K)</div>
-      <div style="position:relative;height:220px"><canvas id="scChart" role="img" aria-label="Revenue comparison across all three scenarios over 5 years">Scenario revenue comparison</canvas></div>
-    </div>
-  </div>
-</div>
+</div><!-- /content -->
 
+<aside class="scenarios-rail">
+  <div class="scenarios-rail-title">Scenarios</div>
+  <button type="button" class="sc-card on" id="rail-sc0" onclick="switchScenario(0)"><strong>Base Case</strong>Your entered assumptions</button>
+  <button type="button" class="sc-card" id="rail-sc1" onclick="switchScenario(1)"><strong>Upside</strong>+20% revenue, better margins</button>
+  <button type="button" class="sc-card" id="rail-sc2" onclick="switchScenario(2)"><strong>Downside</strong>−25% revenue, higher opex</button>
+  <div class="sc-slider">
+    <label id="sc-slider-label">Revenue sensitivity: 100%</label>
+    <input type="range" id="sc-slider" min="70" max="130" value="100" step="5" oninput="applySensitivity(this.value)">
+  </div>
+  <div class="cmp-grid" id="cmp-mini" style="margin-top:14px;grid-template-columns:1fr"></div>
+</aside>
 
-</div><!-- /main -->
+</div><!-- /results-layout -->
+</div><!-- /page-results -->
+
 </div><!-- /app -->
 
 <div class="toast" id="toastEl"></div>
 
 <script>
-const YR=['Year 1','Year 2','Year 3','Year 4','Year 5'];
-const SC=[
-  {name:'Base Case',c:'#8B5CF6',mult:{rev:1,gm:1,opex:1}},
-  {name:'Upside',c:'#34D399',mult:{rev:1.2,gm:1.05,opex:.9}},
-  {name:'Downside',c:'#F87171',mult:{rev:.75,gm:.92,opex:1.1}},
+const INP_ROWS=[
+  {id:'rev',label:'Revenue'},
+  {id:'cogs',label:'Cost of goods sold'},
+  {id:'rd',label:'Research & development'},
+  {id:'sm',label:'Sales & marketing'},
+  {id:'ga',label:'General & administrative'},
 ];
-let cur=0,ch={};
+const DEFAULTS={
+  rev:[2000000,2600000,3250000,3900000,4600000],
+  cogs:[640000,832000,1040000,1248000,1472000],
+  rd:[440000,572000,715000,858000,1012000],
+  sm:[480000,624000,780000,936000,1104000],
+  ga:[280000,364000,455000,546000,644000],
+};
+const SC=[
+  {name:'Base Case',c:'#8B5CF6',mult:{rev:1,opex:1}},
+  {name:'Upside',c:'#34D399',mult:{rev:1.2,opex:.9}},
+  {name:'Downside',c:'#F87171',mult:{rev:.75,opex:1.1}},
+];
+let cur=0,ch={},YR=[],model=null,sensMult=1;
 
 const V=id=>parseFloat(document.getElementById(id)?.value)||0;
 const R=n=>Math.round(n);
 const fm=n=>(n<0?'-$':'$')+Math.abs(R(n)).toLocaleString();
-const fK=n=>fm(n)+'K';
 const pct=(n,d)=>d?R(n/d*100):0;
 
+function yearLabels(){
+  const n=parseInt(document.getElementById('numYears').value,10)||5;
+  const y0=parseInt(document.getElementById('startYear').value,10)||2026;
+  return Array.from({length:n},(_,i)=>String(y0+i));
+}
+
+function rebuildInputGrid(){
+  const n=parseInt(document.getElementById('numYears').value,10)||5;
+  const yrs=yearLabels();
+  let h='<thead><tr><th>Line item</th>'+yrs.map(y=>`<th>FY ${y}</th>`).join('')+'</tr></thead><tbody>';
+  INP_ROWS.forEach(row=>{
+    h+=`<tr><td>${row.label}</td>`;
+    for(let i=0;i<n;i++){
+      const val=DEFAULTS[row.id][i]??0;
+      const existing=document.getElementById(`inp-${row.id}-${i}`);
+      const v=existing?existing.value:val;
+      h+=`<td><input type="number" id="inp-${row.id}-${i}" value="${v}" step="1000"></td>`;
+    }
+    h+='</tr>';
+  });
+  h+='</tbody>';
+  document.getElementById('inp-grid').innerHTML=h;
+}
+
+function readModelFromDOM(){
+  const n=parseInt(document.getElementById('numYears').value,10)||5;
+  const grid={};
+  INP_ROWS.forEach(row=>{
+    grid[row.id]=[];
+    for(let i=0;i<n;i++)grid[row.id].push(V(`inp-${row.id}-${i}`));
+  });
+  return{
+    company:document.getElementById('company').value.trim()||'Company',
+    startYear:parseInt(document.getElementById('startYear').value,10)||2026,
+    numYears:n,
+    grid,
+    cash0:V('cash0'),debt0:V('debt0'),debtpay:V('debtpay'),
+    tax:V('tax'),capex:V('capex'),da:V('da'),intrate:V('intrate'),
+  };
+}
+
 function calc(sci){
-  const m=SC[sci].mult,rev0=V('rev0')*m.rev,g=[V('g1'),V('g2'),V('g3'),V('g4')];
-  const gP=V('gm')*m.gm/100,rdP=V('rd')*m.opex/100,smP=V('sm')*m.opex/100,gaP=V('ga')*m.opex/100;
-  const txP=V('tax')/100,cxP=V('capex')/100,daP=V('da')/100,ir=V('intrate')/100,dp=V('debtpay');
-  let rev=rev0,cash=V('cash0'),debt=V('debt0');
+  if(!model)model=readModelFromDOM();
+  const m=SC[sci].mult;
+  const revMult=m.rev*sensMult, opexMult=m.opex;
+  const txP=model.tax/100,cxP=model.capex/100,daP=model.da/100,ir=model.intrate/100,dp=model.debtpay;
+  const n=model.numYears;
+  let cash=model.cash0,debt=model.debt0;
   const D={revs:[],gps:[],cogs:[],rds:[],sms:[],gas:[],ebitdas:[],das:[],ebits:[],ints:[],nets:[],taxes:[],ocfs:[],icfs:[],fcfs:[],cashes:[],debts:[]};
-  for(let i=0;i<5;i++){
-    if(i>0)rev*=(1+g[i-1]/100);
-    const cogs=R(rev*(1-gP)),gp=R(rev*gP),rd=R(rev*rdP),sm=R(rev*smP),ga=R(rev*gaP);
-    const ebitda=gp-rd-sm-ga,da=R(rev*daP),ebit=ebitda-da;
-    const prevDebt=i===0?V('debt0'):D.debts[i-1];
+  for(let i=0;i<n;i++){
+    const rev=R(model.grid.rev[i]*revMult);
+    const cogs=R(model.grid.cogs[i]*opexMult),rd=R(model.grid.rd[i]*opexMult);
+    const sm=R(model.grid.sm[i]*opexMult),ga=R(model.grid.ga[i]*opexMult);
+    const gp=rev-cogs,ebitda=gp-rd-sm-ga,da=R(rev*daP),ebit=ebitda-da;
+    const prevDebt=i===0?model.debt0:D.debts[i-1];
     const intE=R(prevDebt*ir),ebt=ebit-intE,tax=R(Math.max(0,ebt)*txP),net=ebt-tax;
     const capex=R(rev*cxP),ocf=R(net+da),icf=-capex,fcf=ocf+icf;
     cash=R(cash+ocf-capex-dp);debt=Math.max(0,R(debt-dp));
-    D.revs.push(R(rev));D.gps.push(gp);D.cogs.push(cogs);D.rds.push(rd);D.sms.push(sm);D.gas.push(ga);
+    D.revs.push(rev);D.gps.push(gp);D.cogs.push(cogs);D.rds.push(rd);D.sms.push(sm);D.gas.push(ga);
     D.ebitdas.push(ebitda);D.das.push(da);D.ebits.push(ebit);D.ints.push(intE);D.nets.push(net);D.taxes.push(tax);
     D.ocfs.push(ocf);D.icfs.push(icf);D.fcfs.push(fcf);D.cashes.push(cash);D.debts.push(debt);
   }
   return D;
 }
 
+function lastIdx(D){return D.revs.length-1;}
+function cagr(D){
+  const n=D.revs.length;
+  if(n<2||!D.revs[0])return 0;
+  return R((Math.pow(D.revs[n-1]/D.revs[0],1/(n-1))-1)*100);
+}
+
 function renderKPIs(D,id){
   const el=document.getElementById(id);if(!el)return;
-  const cagr=R((Math.pow(D.revs[4]/D.revs[0],.25)-1)*100);
+  const i=lastIdx(D);
   el.innerHTML=`
-    <div class="kpi"><div class="kpi-lbl">Yr 5 Revenue</div><div class="kpi-num">${fK(D.revs[4])}</div><div class="kpi-sub">CAGR <span class="c-green">${cagr}%</span></div></div>
-    <div class="kpi"><div class="kpi-lbl">Yr 5 Gross Profit</div><div class="kpi-num">${fK(D.gps[4])}</div><div class="kpi-sub">${pct(D.gps[4],D.revs[4])}% margin</div></div>
-    <div class="kpi"><div class="kpi-lbl">Yr 5 EBITDA</div><div class="kpi-num ${D.ebitdas[4]<0?'c-red':'c-green'}">${fK(D.ebitdas[4])}</div><div class="kpi-sub">${pct(D.ebitdas[4],D.revs[4])}% margin</div></div>
-    <div class="kpi"><div class="kpi-lbl">Yr 5 Net Income</div><div class="kpi-num ${D.nets[4]<0?'c-red':'c-green'}">${fK(D.nets[4])}</div><div class="kpi-sub">${pct(D.nets[4],D.revs[4])}% margin</div></div>`;
+    <div class="kpi"><div class="kpi-lbl">Final-year revenue</div><div class="kpi-num">${fm(D.revs[i])}</div><div class="kpi-sub">CAGR <span class="c-green">${cagr(D)}%</span></div></div>
+    <div class="kpi"><div class="kpi-lbl">Final-year gross profit</div><div class="kpi-num">${fm(D.gps[i])}</div><div class="kpi-sub">${pct(D.gps[i],D.revs[i])}% margin</div></div>
+    <div class="kpi"><div class="kpi-lbl">Final-year EBITDA</div><div class="kpi-num ${D.ebitdas[i]<0?'c-red':'c-green'}">${fm(D.ebitdas[i])}</div><div class="kpi-sub">${pct(D.ebitdas[i],D.revs[i])}% margin</div></div>
+    <div class="kpi"><div class="kpi-lbl">Final-year net income</div><div class="kpi-num ${D.nets[i]<0?'c-red':'c-green'}">${fm(D.nets[i])}</div><div class="kpi-sub">${pct(D.nets[i],D.revs[i])}% margin</div></div>`;
 }
 
 function renderTable(D){
@@ -441,15 +509,17 @@ function renderTable(D){
     {t:'row',l:'Outstanding debt',vs:D.debts.map(x=>-x)},
     {t:'tot',l:'Net Cash Position',vs:D.cashes.map((c,i)=>c-D.debts[i])},
   ];
-  let h=`<thead><tr><th style="text-align:left;width:38%">Line item</th>${YR.map(y=>`<th>${y}</th>`).join('')}<th>YoY</th></tr></thead><tbody>`;
+  const ncol=D.revs.length+2;
+  let h=`<thead><tr><th style="text-align:left;width:38%">Line item</th>${YR.map(y=>`<th>FY ${y}</th>`).join('')}<th>YoY</th></tr></thead><tbody>`;
   rows.forEach(r=>{
-    if(r.t==='sec'){h+=`<tr class="t-sec"><td colspan="7">${r.l}</td></tr>`;return;}
+    if(r.t==='sec'){h+=`<tr class="t-sec"><td colspan="${ncol}">${r.l}</td></tr>`;return;}
     const cls=r.t==='tot'?'t-tot':r.t==='sub'?'t-sub':'t-row';
     const ind=r.t==='row'?'padding-left:26px':'';
-    const chg=r.vs[3]?pct(r.vs[4]-r.vs[3],Math.abs(r.vs[3])):null;
+    const li=lastIdx(D);
+    const chg=li>0&&r.vs[li-1]?pct(r.vs[li]-r.vs[li-1],Math.abs(r.vs[li-1])):null;
     const bdg=chg!==null?`<span class="badge ${chg>=0?'b-up':'b-dn'}">${chg>=0?'+':''}${chg}%</span>`:'';
     h+=`<tr class="${cls}"><td style="${ind}">${r.l}</td>`;
-    r.vs.forEach(vv=>h+=`<td class="${vv<0?'neg':''}">${fK(vv)}</td>`);
+    r.vs.forEach(vv=>h+=`<td class="${vv<0?'neg':''}">${fm(vv)}</td>`);
     h+=`<td style="text-align:center">${bdg}</td></tr>`;
   });
   h+=`</tbody>`;
@@ -498,7 +568,7 @@ function renderAnalytics(D){
   ]},options:cp(base)});
 
   // Opex donut
-  const yr5=4;
+  const yr5=lastIdx(D);
   ch['an-opex']=new Chart(document.getElementById('an-opex'),{type:'doughnut',data:{
     labels:['COGS','R&D','S&M','G&A','Other'],
     datasets:[{data:[
@@ -510,7 +580,7 @@ function renderAnalytics(D){
     plugins:{legend:{position:'right',labels:{color:'rgba(248,246,255,.5)',font:{size:11,family:"'JetBrains Mono'"},padding:10,boxWidth:10}}}}});
 
   // Growth rate bars
-  const growths=[0,...[V('g1'),V('g2'),V('g3'),V('g4')]];
+  const growths=D.revs.map((r,i)=>i===0?0:pct(r-D.revs[i-1],D.revs[i-1]));
   const grO=cp(base);grO.scales.y.ticks.callback=v=>v+'%';
   ch['an-growth']=new Chart(document.getElementById('an-growth'),{type:'bar',data:{labels:YR,datasets:[{
     label:'Growth %',data:growths,
@@ -519,9 +589,9 @@ function renderAnalytics(D){
 
   // Ratio pills
   const ratios=[
-    {l:'Current ratio',v:'2.4x'},{l:'Debt/equity',v:(D.debts[yr5]/(D.revs[yr5]-D.debts[yr5])).toFixed(2)+'x'},
+    {l:'Cash (final yr)',v:fm(D.cashes[yr5])},{l:'Debt (final yr)',v:fm(D.debts[yr5])},
     {l:'Gross margin',v:pct(D.gps[yr5],D.revs[yr5])+'%'},{l:'EBITDA margin',v:pct(D.ebitdas[yr5],D.revs[yr5])+'%'},
-    {l:'Net margin',v:pct(D.nets[yr5],D.revs[yr5])+'%'},{l:'Revenue CAGR',v:R((Math.pow(D.revs[4]/D.revs[0],.25)-1)*100)+'%'},
+    {l:'Net margin',v:pct(D.nets[yr5],D.revs[yr5])+'%'},{l:'Revenue CAGR',v:cagr(D)+'%'},
   ];
   document.getElementById('ratio-row').innerHTML=ratios.map(r=>`
     <div class="kpi" style="text-align:center">
@@ -531,67 +601,80 @@ function renderAnalytics(D){
 }
 
 
-function renderCompare(){
+function renderScenarioMini(){
+  const el=document.getElementById('cmp-mini');if(!el)return;
   const all=SC.map((_,i)=>calc(i));
-  document.getElementById('cmp-grid').innerHTML=all.map((D,i)=>{
-    const s=SC[i];
-    return`<div class="cmp-card" style="border-color:${s.c}35">
-      <div class="cmp-title" style="color:${s.c}"><div style="width:8px;height:8px;border-radius:50%;background:${s.c};box-shadow:0 0 8px ${s.c};flex-shrink:0"></div>${s.name}</div>
-      <div class="cmp-row"><span>Revenue (Yr 5)</span><span>${fK(D.revs[4])}</span></div>
-      <div class="cmp-row"><span>Gross profit</span><span>${fK(D.gps[4])}</span></div>
-      <div class="cmp-row"><span>EBITDA</span><span class="${D.ebitdas[4]<0?'c-red':'c-green'}">${fK(D.ebitdas[4])}</span></div>
-      <div class="cmp-row"><span>Net income</span><span class="${D.nets[4]<0?'c-red':'c-green'}">${fK(D.nets[4])}</span></div>
-      <div class="cmp-row"><span>Free cash flow</span><span class="${D.fcfs[4]<0?'c-red':'c-green'}">${fK(D.fcfs[4])}</span></div>
-      <div class="cmp-row"><span>Gross margin</span><span>${pct(D.gps[4],D.revs[4])}%</span></div>
-      <div class="cmp-row"><span>Net margin</span><span>${pct(D.nets[4],D.revs[4])}%</span></div>
+  const i=lastIdx(all[0]);
+  el.innerHTML=all.map((D,ix)=>{
+    const s=SC[ix],on=ix===cur?'border-color:'+s.c+'55':'';
+    return`<div class="cmp-card" style="${on};margin-bottom:8px;padding:12px">
+      <div class="cmp-title" style="color:${s.c};font-size:12px;margin-bottom:8px">${s.name}</div>
+      <div class="cmp-row"><span>Revenue</span><span>${fm(D.revs[i])}</span></div>
+      <div class="cmp-row"><span>EBITDA</span><span>${fm(D.ebitdas[i])}</span></div>
+      <div class="cmp-row"><span>Net income</span><span>${fm(D.nets[i])}</span></div>
     </div>`;
   }).join('');
-  if(ch.sc){ch.sc.destroy();delete ch.sc;}
-  ch.sc=new Chart(document.getElementById('scChart'),{type:'bar',data:{labels:YR,datasets:all.map((D,i)=>({
-    label:SC[i].name,data:D.revs,backgroundColor:SC[i].c+'99',borderRadius:5,borderSkipped:false
-  }))},options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:'rgba(248,246,255,.45)',font:{size:11,family:"'JetBrains Mono'"},usePointStyle:true,pointStyleWidth:10,padding:18}}},
-    scales:{x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(248,246,255,.3)',font:{size:10}}},
-            y:{grid:{color:'rgba(255,255,255,.04)'},border:{display:false},ticks:{color:'rgba(248,246,255,.3)',font:{size:10},callback:v=>'$'+R(v/1000)+'M'}}}}
-  });
 }
 
 function recalc(){
+  if(!model)return;
   const D=calc(cur);
-  renderKPIs(D,'kpi-inputs');
   renderKPIs(D,'kpi-pf');
   renderTable(D);
+  renderScenarioMini();
   if(document.getElementById('view-analytics').classList.contains('on'))renderAnalytics(D);
-  if(document.getElementById('view-compare').classList.contains('on'))renderCompare();
+}
+
+function runCalculate(){
+  model=readModelFromDOM();
+  YR=yearLabels();
+  sensMult=1;
+  cur=0;
+  document.getElementById('sc-slider').value=100;
+  document.getElementById('sc-slider-label').textContent='Revenue sensitivity: 100%';
+  [0,1,2].forEach(j=>document.getElementById('rail-sc'+j).classList.toggle('on',j===0));
+  const end=YR[YR.length-1];
+  document.getElementById('footer-label').textContent=`${model.company} · FY${YR[0]}–${end}`;
+  document.getElementById('pf-meta').textContent=`${model.company} · income statement, cash flow & balance sheet`;
+  showPage('results');
+  recalc();
+  toast('Pro forma calculated');
+}
+
+function showPage(which){
+  document.getElementById('page-inputs').classList.toggle('active',which==='inputs');
+  document.getElementById('page-results').classList.toggle('active',which==='results');
+  document.getElementById('step-1').classList.toggle('active',which==='inputs');
+  document.getElementById('step-1').classList.toggle('done',which==='results');
+  document.getElementById('step-2').classList.toggle('active',which==='results');
+  document.getElementById('btn-back').style.display=which==='results'?'':'none';
+  document.getElementById('btn-export').style.display=which==='results'?'':'none';
 }
 
 function showView(id){
-  const views=['inputs','proforma','analytics','compare'];
-  views.forEach(v=>{
+  ['proforma','analytics'].forEach(v=>{
     document.getElementById('view-'+v).classList.toggle('on',v===id);
-    const nb=document.querySelectorAll('.nav-tab')[views.indexOf(v)];
-    if(nb)nb.classList.toggle('on',v===id);
     const sb=document.getElementById('sb-view-'+v);
     if(sb)sb.classList.toggle('on',v===id);
   });
-  if(id==='analytics')setTimeout(()=>renderAnalytics(calc(cur)),30);
-  if(id==='compare')setTimeout(()=>renderCompare(),30);
+  if(id==='analytics'&&model)setTimeout(()=>renderAnalytics(calc(cur)),30);
 }
 
 function switchScenario(i){
   cur=i;
-  [0,1,2].forEach(j=>{
-    document.getElementById('scb'+j).classList.toggle('on',j===i);
-    document.getElementById('sb-sc'+j).classList.toggle('on',j===i);
-  });
+  sensMult=i===0?parseInt(document.getElementById('sc-slider').value,10)/100:1;
+  [0,1,2].forEach(j=>document.getElementById('rail-sc'+j).classList.toggle('on',j===i));
+  if(i!==0){
+    document.getElementById('sc-slider').value=[100,120,75][i];
+    document.getElementById('sc-slider-label').textContent='Revenue sensitivity: '+document.getElementById('sc-slider').value+'%';
+  }
   recalc();
-  toast(`Switched to ${SC[i].name}`);
 }
 
-function flashStatus(){
-  const el=document.getElementById('sc-status');
-  el.textContent='Updated';el.classList.add('flash');
-  setTimeout(()=>{el.textContent='Ready';el.classList.remove('flash');},1400);
+function applySensitivity(val){
+  sensMult=parseInt(val,10)/100;
+  document.getElementById('sc-slider-label').textContent='Revenue sensitivity: '+val+'%';
+  if(cur===0)recalc();
 }
 
 let _tt;
@@ -601,14 +684,17 @@ function toast(msg){
   clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),2800);
 }
 
-recalc();
+rebuildInputGrid();
+showPage('inputs');
 
 /* ── PDF EXPORT ─────────────────────────────────────────────────────────── */
 function exportPDF(){
+  if(!model){toast('Calculate pro forma first');return;}
   const D=calc(cur), sc=SC[cur];
-  const company='Acme Corporation';
+  const company=model.company;
   const today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
-  const cagr=R((Math.pow(D.revs[4]/D.revs[0],.25)-1)*100);
+  const cagrVal=cagr(D);
+  const Y1=0, Y5=lastIdx(D);
 
   // Formatter: parentheses for negatives, em-dash for zero (like SEC filings)
   function fn(n,zero_dash=false){
@@ -663,7 +749,6 @@ function exportPDF(){
   // Use Year 1 as "Entity A" and Year 5 as "Entity B" — like a combination statement
   // Columns: [Yr1, Yr5, ProFormaAdj, Combined]
   // For the PDF, we show: Base Yr1 | Yr5 | Pro Forma Adjustments | Notes | Pro Forma Combined
-  const Y1=0, Y5=4;
   const cogs1=D.revs[Y1]-D.gps[Y1], cogs5=D.revs[Y5]-D.gps[Y5];
   const adj_rev=R(D.revs[Y5]-base.revs[Y5]);
   const adj_gp=R(D.gps[Y5]-base.gps[Y5]);
@@ -860,7 +945,7 @@ td[style*="padding-left"]{color:#555}
       <div class="cover-meta-item"><div class="cover-meta-label">Prepared</div><div class="cover-meta-val">${today}</div></div>
     </div>
     <div class="cover-kpis">
-      <div class="cover-kpi"><div class="ck-label">Yr 5 Revenue</div><div class="ck-val">${fn(D.revs[Y5])}</div><div class="ck-sub">CAGR ${cagr}%</div></div>
+      <div class="cover-kpi"><div class="ck-label">Yr 5 Revenue</div><div class="ck-val">${fn(D.revs[Y5])}</div><div class="ck-sub">CAGR ${cagrVal}%</div></div>
       <div class="cover-kpi"><div class="ck-label">Gross Profit</div><div class="ck-val">${fn(D.gps[Y5])}</div><div class="ck-sub">${pct(D.gps[Y5],D.revs[Y5])}% margin</div></div>
       <div class="cover-kpi"><div class="ck-label">EBITDA</div><div class="ck-val">${fn(D.ebitdas[Y5])}</div><div class="ck-sub">${pct(D.ebitdas[Y5],D.revs[Y5])}% margin</div></div>
       <div class="cover-kpi"><div class="ck-label">Net Income</div><div class="ck-val">${fn(D.nets[Y5])}</div><div class="ck-sub">${pct(D.nets[Y5],D.revs[Y5])}% margin</div></div>
@@ -893,7 +978,7 @@ td[style*="padding-left"]{color:#555}
     <div class="narrative-head">Management Commentary</div>
     <div class="narrative-body">
       ${company} projects net sales growing from $${R(D.revs[Y1]).toLocaleString()} in Year 1 to
-      $${R(D.revs[Y5]).toLocaleString()} by Year 5, representing a ${cagr}% CAGR under the ${sc.name} scenario.
+      $${R(D.revs[Y5]).toLocaleString()} by Year 5, representing a ${cagrVal}% CAGR under the ${sc.name} scenario.
       Gross profit margin is maintained at approximately ${pct(D.gps[Y5],D.revs[Y5])}%, reflecting the company's
       scalable cost structure. Net income is projected at $${R(D.nets[Y5]).toLocaleString()} in Year 5,
       a ${pct(D.nets[Y5],D.revs[Y5])}% net margin. Pro forma adjustments reflect scenario-specific
@@ -903,7 +988,7 @@ td[style*="padding-left"]{color:#555}
 
   <div class="kpi-strip">
     <div class="kpi-b"><div class="kb-l">Yr 1 Net Sales</div><div class="kb-v">$${R(D.revs[Y1]).toLocaleString()}</div><div class="kb-s">Base year</div></div>
-    <div class="kpi-b"><div class="kb-l">Yr 5 Net Sales</div><div class="kb-v">$${R(D.revs[Y5]).toLocaleString()}</div><div class="kb-s">CAGR ${cagr}%</div></div>
+    <div class="kpi-b"><div class="kb-l">Yr 5 Net Sales</div><div class="kb-v">$${R(D.revs[Y5]).toLocaleString()}</div><div class="kb-s">CAGR ${cagrVal}%</div></div>
     <div class="kpi-b"><div class="kb-l">Gross Margin</div><div class="kb-v">${pct(D.gps[Y5],D.revs[Y5])}%</div><div class="kb-s">Year 5</div></div>
     <div class="kpi-b"><div class="kb-l">EBITDA Margin</div><div class="kb-v">${pct(D.ebitdas[Y5],D.revs[Y5])}%</div><div class="kb-s">Year 5</div></div>
   </div>
@@ -985,45 +1070,38 @@ td[style*="padding-left"]{color:#555}
 
   <div class="narrative" style="margin-bottom:12px">
     <div class="narrative-head">Note 2 — Accounting Policies</div>
-    <div class="narrative-body">The pro forma statements have been prepared using consistent accounting policies across all periods. Revenue is recognized when earned in accordance with applicable revenue recognition standards. Operating expenses are classified by function. Income taxes are computed using the effective tax rate of ${V('tax')}%. All figures are presented in USD thousands ($000s) unless otherwise noted.</div>
+    <div class="narrative-body">The pro forma statements have been prepared using consistent accounting policies across all periods. Revenue is recognized when earned in accordance with applicable revenue recognition standards. Operating expenses are classified by function. Income taxes are computed using the effective tax rate of ${model.tax}%. All figures are presented in U.S. dollars unless otherwise noted.</div>
   </div>
 
   <p style="font-weight:600;font-size:10pt;margin-bottom:10px;color:#111">Note 3 — Pro Forma Adjustments and Assumptions</p>
 
   <div class="asmp-grid">
     <div class="asmp-box">
-      <div class="asmp-title">3(a) — Revenue Assumptions</div>
-      <div class="asmp-row"><span class="asmp-k">Year 1 base revenue</span><span class="asmp-v">$${V('rev0').toLocaleString()}K</span></div>
-      <div class="asmp-row"><span class="asmp-k">Yr 1→2 growth rate</span><span class="asmp-v">${V('g1')}%</span></div>
-      <div class="asmp-row"><span class="asmp-k">Yr 2→3 growth rate</span><span class="asmp-v">${V('g2')}%</span></div>
-      <div class="asmp-row"><span class="asmp-k">Yr 3→4 growth rate</span><span class="asmp-v">${V('g3')}%</span></div>
-      <div class="asmp-row"><span class="asmp-k">Yr 4→5 growth rate</span><span class="asmp-v">${V('g4')}%</span></div>
+      <div class="asmp-title">3(a) — Revenue (user inputs)</div>
+      ${YR.map((y,i)=>`<div class="asmp-row"><span class="asmp-k">FY ${y}</span><span class="asmp-v">$${R(model.grid.rev[i]).toLocaleString()}</span></div>`).join('')}
       <div class="asmp-row"><span class="asmp-k">Scenario revenue multiplier</span><span class="asmp-v">${sc.mult.rev}×</span></div>
     </div>
     <div class="asmp-box">
-      <div class="asmp-title">3(b) — Cost & Margin Assumptions</div>
-      <div class="asmp-row"><span class="asmp-k">Gross margin</span><span class="asmp-v">${V('gm')}% (${sc.mult.gm}× adj.)</span></div>
-      <div class="asmp-row"><span class="asmp-k">R&D as % of revenue</span><span class="asmp-v">${V('rd')}%</span></div>
-      <div class="asmp-row"><span class="asmp-k">Sales & marketing %</span><span class="asmp-v">${V('sm')}%</span></div>
-      <div class="asmp-row"><span class="asmp-k">G&A as % of revenue</span><span class="asmp-v">${V('ga')}%</span></div>
-      <div class="asmp-row"><span class="asmp-k">D&A as % of revenue</span><span class="asmp-v">${V('da')}%</span></div>
+      <div class="asmp-title">3(b) — Operating expenses (user inputs)</div>
+      ${INP_ROWS.filter(r=>r.id!=='rev').map(row=>`
+        <div class="asmp-row" style="margin-top:6px"><span class="asmp-k" style="font-weight:600">${row.label}</span></div>
+        ${YR.map((y,i)=>`<div class="asmp-row"><span class="asmp-k">FY ${y}</span><span class="asmp-v">$${R(model.grid[row.id][i]).toLocaleString()}</span></div>`).join('')}
+      `).join('')}
       <div class="asmp-row"><span class="asmp-k">Opex scenario multiplier</span><span class="asmp-v">${sc.mult.opex}×</span></div>
     </div>
     <div class="asmp-box">
-      <div class="asmp-title">3(c) — Balance Sheet Assumptions</div>
-      <div class="asmp-row"><span class="asmp-k">Starting cash (Year 1)</span><span class="asmp-v">$${V('cash0').toLocaleString()}K</span></div>
-      <div class="asmp-row"><span class="asmp-k">Starting debt (Year 1)</span><span class="asmp-v">$${V('debt0').toLocaleString()}K</span></div>
-      <div class="asmp-row"><span class="asmp-k">Annual debt repayment</span><span class="asmp-v">$${V('debtpay').toLocaleString()}K/yr</span></div>
-      <div class="asmp-row"><span class="asmp-k">Interest rate on debt</span><span class="asmp-v">${V('intrate')}%</span></div>
-      <div class="asmp-row"><span class="asmp-k">Capex as % of revenue</span><span class="asmp-v">${V('capex')}%</span></div>
+      <div class="asmp-title">3(c) — Balance sheet drivers</div>
+      <div class="asmp-row"><span class="asmp-k">Starting cash</span><span class="asmp-v">$${R(model.cash0).toLocaleString()}</span></div>
+      <div class="asmp-row"><span class="asmp-k">Starting debt</span><span class="asmp-v">$${R(model.debt0).toLocaleString()}</span></div>
+      <div class="asmp-row"><span class="asmp-k">Annual debt repayment</span><span class="asmp-v">$${R(model.debtpay).toLocaleString()}</span></div>
+      <div class="asmp-row"><span class="asmp-k">Interest rate on debt</span><span class="asmp-v">${model.intrate}%</span></div>
+      <div class="asmp-row"><span class="asmp-k">Capex as % of revenue</span><span class="asmp-v">${model.capex}%</span></div>
+      <div class="asmp-row"><span class="asmp-k">D&A as % of revenue</span><span class="asmp-v">${model.da}%</span></div>
     </div>
     <div class="asmp-box">
-      <div class="asmp-title">3(d) — Working Capital & Tax</div>
-      <div class="asmp-row"><span class="asmp-k">Days sales outstanding</span><span class="asmp-v">${V('dso')} days</span></div>
-      <div class="asmp-row"><span class="asmp-k">Days payable outstanding</span><span class="asmp-v">${V('dpo')} days</span></div>
-      <div class="asmp-row"><span class="asmp-k">Effective tax rate</span><span class="asmp-v">${V('tax')}%</span></div>
-      <div class="asmp-row"><span class="asmp-k">Headcount (Year 1)</span><span class="asmp-v">${V('hc')} FTEs</span></div>
-      <div class="asmp-row"><span class="asmp-k">Avg. annual salary</span><span class="asmp-v">$${V('sal').toLocaleString()}K</span></div>
+      <div class="asmp-title">3(d) — Tax</div>
+      <div class="asmp-row"><span class="asmp-k">Effective tax rate</span><span class="asmp-v">${model.tax}%</span></div>
+      <div class="asmp-row"><span class="asmp-k">Forecast period</span><span class="asmp-v">FY ${YR[0]} – ${YR[YR.length-1]}</span></div>
     </div>
   </div>
 
